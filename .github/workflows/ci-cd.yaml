@@ -1,0 +1,74 @@
+name: CI-CD
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+    - '**/README.md'
+    - 'docs/**'  
+  pull_request:
+    paths-ignore:
+    - '**/README.md'
+    - 'docs/**'
+
+jobs:
+  build:
+    env:
+      BUILD_CONFIG: Release
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Format
+      run: dotnet format --verify-no-changes --no-restore
+    - name: Build
+      run: dotnet build -c $BUILD_CONFIG --no-restore
+    - name: Test
+      run: dotnet test -c $BUILD_CONFIG --no-build --verbosity normal
+    - name: Package
+      run: dotnet pack -c $BUILD_CONFIG src/Peter/Peter.csproj
+    # - name: Upload a Build Artifact
+    #   uses: actions/upload-artifact@v2.2.2
+    #   with:
+    #     path: src/Peter/bin/${{ env.BUILD_CONFIG }}
+    - name: Get version
+      id: version
+      run: |
+        $version = Get-Content -Path .\src\Peter\Peter.csproj | Where-Object { $_ -Like "*<Version>*" }
+        if ($version) {
+            $version = $version.Trim().Substring("<Version>".Length)
+            $version = $version.Substring(0, $version.IndexOf("</Version>"))
+        }
+        else {
+            $version = "1.0.0"
+        }
+        echo "::set-output name=version::$version"
+      shell: pwsh
+    - name: Publish
+      if: github.ref == 'refs/heads/main'
+      run: |
+        dotnet nuget push .\src\Peter\bin\Release\*.nupkg --api-key "$env:NUGET_API_KEY" --skip-duplicate
+      shell: pwsh
+      env:
+        NUGET_PASSWORD:  ${{ secrets.NUGET_API_KEY }}
+    - name: Version tag
+      if: github.ref == 'refs/heads/main'
+      uses: actions/github-script@v3.1.0
+      with:
+        script: |
+          github.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/${process.env.PACKAGE_VERSION}`,
+            sha: context.sha
+          })      
+      env:
+        PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+      continue-on-error: true

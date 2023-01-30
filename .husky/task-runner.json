@@ -1,0 +1,20 @@
+{
+    "tasks": [
+        {
+            "name": "dotnet-format-staged",
+            "command": "dotnet",
+            "args": [
+                "format",
+                "--include",
+                "${staged}"
+            ]
+        },
+        {
+            "name": "dotnet-format-all",
+            "command": "dotnet",
+            "args": [
+                "format"
+            ]
+        }
+    ]
+}
