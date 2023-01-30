@@ -54,7 +54,7 @@ jobs:
     - name: Publish
       if: github.ref == 'refs/heads/main'
       run: |
-        dotnet nuget push .\src\Peter\bin\Release\*.nupkg --api-key "$env:NUGET_API_KEY" --skip-duplicate
+        dotnet nuget push .\src\Peter\bin\Release\*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$env:NUGET_API_KEY" --skip-duplicate
       shell: pwsh
       env:
         NUGET_PASSWORD:  ${{ secrets.NUGET_API_KEY }}
