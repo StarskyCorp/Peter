@@ -60,15 +60,15 @@ jobs:
         NUGET_API_KEY:  ${{ secrets.NUGET_API_KEY }}
     - name: Version tag
       if: github.ref == 'refs/heads/main'
-      uses: actions/github-script@v3.1.0
+      uses: actions/github-script@v6
       with:
         script: |
-          github.git.createRef({
+          github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
             ref: `refs/tags/${process.env.PACKAGE_VERSION}`,
             sha: context.sha
-          })      
+          })
       env:
         PACKAGE_VERSION: ${{ steps.version.outputs.version }}
       continue-on-error: true
