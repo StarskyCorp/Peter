@@ -12,7 +12,7 @@ public static class TestAuthenticationExtensions
     {
         return services.AddAuthentication(defaultScheme: TestConstants.Authentication.TestScheme)
             .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
-                TestConstants.Authentication.TestScheme, options => { });
+                TestConstants.Authentication.TestScheme, _ => { });
     }
 
     public static HttpClient WithIdentity(this HttpClient httpClient, IEnumerable<Claim> claims)
