@@ -1,10 +1,9 @@
-﻿namespace Peter
+﻿namespace Peter;
+
+public class Me
 {
-    public class Me
+    public string Hello(string name)
     {
-        public string Hello(string name)
-        {
-            return $"Hello {name}, I'm Peter.";
-        }
+        return $"Hello {name}, I'm Peter.";
     }
 }
