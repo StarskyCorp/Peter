@@ -6,6 +6,6 @@ public static class TestConstants
     {
         public const string TestScheme = "TestScheme";
         public const string TestAuthType = "TestAuthType";
-        public static string HeaderName => $"X-TestServerAuthentication-{TestScheme}";
+        public const string HeaderName = $"X-TestServerAuthentication-{TestScheme}";
     }
 }

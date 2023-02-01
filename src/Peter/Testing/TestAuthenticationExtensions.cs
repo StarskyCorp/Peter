@@ -2,9 +2,10 @@
 using System.Net.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
+using Peter.Testing;
 
-namespace Peter.Testing;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class TestAuthenticationExtensions
 {
@@ -17,7 +18,7 @@ public static class TestAuthenticationExtensions
 
     public static HttpClient WithIdentity(this HttpClient httpClient, IEnumerable<Claim> claims)
     {
-        var serializedClaims = ClaimsSerializer.Encode(claims);
+        var serializedClaims = ClaimsSerializer.Serialize(claims);
 
         httpClient.DefaultRequestHeaders.Add(
             name: TestConstants.Authentication.HeaderName,

@@ -8,7 +8,7 @@ namespace Peter.Testing;
 
 internal static class ClaimsSerializer
 {
-    public static string Encode(IEnumerable<Claim> claims)
+    public static string Serialize(IEnumerable<Claim> claims)
     {
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
         var ticket = new AuthenticationTicket(principal, TestConstants.Authentication.TestScheme);
@@ -17,23 +17,14 @@ internal static class ClaimsSerializer
         return Convert.ToBase64String(bytes);
     }
 
-    public static IEnumerable<Claim> Decode(string encodedValue)
+    public static IEnumerable<Claim> Deserialize(string text)
     {
-        if (string.IsNullOrEmpty(encodedValue))
+        if (string.IsNullOrEmpty(text))
         {
             return Enumerable.Empty<Claim>();
         }
-
         var serializer = new TicketSerializer();
-        try
-        {
-            AuthenticationTicket ticket = serializer.Deserialize(Convert.FromBase64String(encodedValue));
-
-            return ticket?.Principal.Claims;
-        }
-        catch (Exception)
-        {
-            return Enumerable.Empty<Claim>();
-        }
+        AuthenticationTicket ticket = serializer.Deserialize(Convert.FromBase64String(text));
+        return ticket?.Principal.Claims;
     }
 }

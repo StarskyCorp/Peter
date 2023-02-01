@@ -16,14 +16,14 @@ public class GreetingsApiShould : IClassFixture<ServerFixture<Program>>
     [Fact]
     public async Task greet()
     {
-        var response = await _fixture.Client.GetStringAsync("/Peter");
+        var response = await _fixture.Client().GetStringAsync("/Peter");
         response.Should().Be("Hello Peter!");
     }
 
     [Fact]
-    public async Task get_401_for_not_authenticated_client()
+    public async Task greet_non_authenticated()
     {
-        var response = await _fixture.Client.GetAsync("/Peter/Authenticated");
+        var response = await _fixture.Client().GetAsync("/Peter/Authenticated");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 

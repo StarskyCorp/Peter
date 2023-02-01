@@ -31,7 +31,7 @@ public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSch
         }
 
         var serializedClaims = authorizationHeaderValue.Substring($"{Scheme.Name} ".Length).Trim();
-        var claims = ClaimsSerializer.Decode(serializedClaims);
+        var claims = ClaimsSerializer.Deserialize(serializedClaims);
 
         Logger.LogInformation("{Scheme} Authenticated", Scheme.Name);
 
