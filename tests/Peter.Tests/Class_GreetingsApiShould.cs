@@ -16,7 +16,7 @@ public class ClassFixtureInitializer : IPeterInitializer
     }
 }
 
-public class Class_GreetingsApiShould: IClassFixture<ServerFixture<Program, ClassFixtureInitializer>>
+public class Class_GreetingsApiShould : IClassFixture<ServerFixture<Program, ClassFixtureInitializer>>
 {
     private readonly ServerFixture<Program, ClassFixtureInitializer> _fixture;
 
