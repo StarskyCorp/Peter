@@ -8,12 +8,12 @@ using Xunit;
 
 namespace Peter.Tests;
 
-[CollectionDefinition("Database collection")]
+[CollectionDefinition(nameof(DatabaseCollectionFixture))]
 public class DatabaseCollectionFixture : ICollectionFixture<ServerFixture<Program, DatabaseCollectionInitializer>>
 {
 }
 
-public class DatabaseCollectionInitializer : IPeterInitializer
+public class DatabaseCollectionInitializer : IServerFixtureInitializer
 {
     public void Initialize(IServiceProvider services)
     {
@@ -21,7 +21,7 @@ public class DatabaseCollectionInitializer : IPeterInitializer
     }
 }
 
-[Collection("Database collection")]
+[Collection(nameof(DatabaseCollectionFixture))]
 public class Collection_GreetingsApiShould
 {
     private readonly ServerFixture<Program, DatabaseCollectionInitializer> _fixture;

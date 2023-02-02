@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Peter.Tests;
 
-public class ClassFixtureInitializer : IPeterInitializer
+public class ClassFixtureInitializer : IServerFixtureInitializer
 {
     public void Initialize(IServiceProvider services)
     {

@@ -2,7 +2,7 @@
 
 namespace Peter.Testing;
 
-public interface IPeterInitializer
+public interface IServerFixtureInitializer
 {
     void Initialize(IServiceProvider services);
 }
