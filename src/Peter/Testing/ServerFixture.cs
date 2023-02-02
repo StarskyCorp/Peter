@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Peter.Testing;
 
-public class ServerFixture<T, Q> : WebApplicationFactory<T> where T : class where Q : IPeterInitializer, new()
+public class ServerFixture<T> : WebApplicationFactory<T> where T : class
 {
     public HttpClient Client() => CreateDefaultClient();
     public HttpClient AuthenticatedClient(IEnumerable<Claim> claims) => CreateDefaultClient().WithIdentity(claims);
@@ -17,8 +17,20 @@ public class ServerFixture<T, Q> : WebApplicationFactory<T> where T : class wher
     {
         builder.ConfigureTestServices(services =>
         {
-            var init = new Q();
             services.AddTestAuthentication();
+        });
+    }
+}
+
+public class ServerFixture<T, Q> : ServerFixture<T> where T : class where Q : IPeterInitializer, new()
+{
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.ConfigureTestServices(services =>
+        {
+            var init = new Q();
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             init.Initialize(scope.ServiceProvider);
