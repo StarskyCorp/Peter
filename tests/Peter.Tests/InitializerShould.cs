@@ -7,13 +7,13 @@ using Xunit;
 
 namespace Peter.Tests;
 
-public class Initializer : IPeterInitializer
+public class Initializer : IServerFixtureInitializer
 {
-    public static Mock<IPeterInitializer> _initializer;
+    public static Mock<IServerFixtureInitializer> _initializer;
 
     static Initializer()
     {
-        _initializer = new Mock<IPeterInitializer>();
+        _initializer = new Mock<IServerFixtureInitializer>();
     }
 
     public void Initialize(IServiceProvider services)

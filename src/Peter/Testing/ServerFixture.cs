@@ -22,7 +22,7 @@ public class ServerFixture<T> : WebApplicationFactory<T> where T : class
     }
 }
 
-public class ServerFixture<T, Q> : ServerFixture<T> where T : class where Q : IPeterInitializer, new()
+public class ServerFixture<T, Q> : ServerFixture<T> where T : class where Q : IServerFixtureInitializer, new()
 {
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -30,10 +30,10 @@ public class ServerFixture<T, Q> : ServerFixture<T> where T : class where Q : IP
         base.ConfigureWebHost(builder);
         builder.ConfigureTestServices(services =>
         {
-            var init = new Q();
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
-            init.Initialize(scope.ServiceProvider);
+            var initializer = new Q();
+            initializer.Initialize(scope.ServiceProvider);
         });
     }
 }

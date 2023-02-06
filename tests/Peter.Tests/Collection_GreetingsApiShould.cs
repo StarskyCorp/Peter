@@ -7,12 +7,12 @@ using Xunit;
 
 namespace Peter.Tests;
 
-[CollectionDefinition("Database collection")]
+[CollectionDefinition(nameof(DatabaseCollectionFixture))]
 public class DatabaseCollectionFixture : ICollectionFixture<ServerFixture<Program>>
 {
 }
 
-[Collection("Database collection")]
+[Collection(nameof(DatabaseCollectionFixture))]
 public class Collection_GreetingsApiShould
 {
     private readonly ServerFixture<Program> _fixture;
