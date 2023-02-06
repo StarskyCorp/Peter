@@ -32,7 +32,7 @@ Peter is built using the someopen source projects like:
 - Fluent Assertions
 - MediatR
 
-In addition, some of the Peter "tools" are inpired by open source projects like 
+In addition, some of the Peter "tools" are inspired by open source projects like:
 
 - [Acheve Test Host by the xabaril team](https://github.com/Xabaril/Acheve.TestHost)
 - [Carter, created by some NancyFx mantainers](https://github.com/CarterCommunity/Carter)
