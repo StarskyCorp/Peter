@@ -1,17 +1,21 @@
-name: CI-CD
+name: CD
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
-    paths-ignore:
-    - '**/README.md'
-    - 'docs/**'  
-  pull_request:
-    paths-ignore:
-    - '**/README.md'
-    - 'docs/**'
+  # push:
+  #   branches:
+  #   - main
+  #   paths-ignore:
+  #   - '**/README.md'
+  #   - '.idea/**'
+  #   - '.vs/**'
+  #   - 'docs/**'    
+  # pull_request:
+  #   paths-ignore:
+  #   - '**/README.md'
+  #   - '.idea/**'
+  #   - '.vs/**'
+  #   - 'docs/**'    
 
 jobs:
   build:
