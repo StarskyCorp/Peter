@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Peter.Testing;
+namespace Peter.MinimalApi.Testing;
 
 public class ServerFixture<T> : WebApplicationFactory<T> where T : class
 {

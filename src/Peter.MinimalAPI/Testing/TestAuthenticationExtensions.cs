@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Peter.Testing;
+using Peter.MinimalApi.Testing;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

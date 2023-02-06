@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Peter.Testing;
+namespace Peter.MinimalApi.Testing;
 
 internal static class ClaimsSerializer
 {

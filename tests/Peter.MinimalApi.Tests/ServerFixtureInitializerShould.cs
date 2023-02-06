@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using GreetingsApi;
 using Moq;
-using Peter.Testing;
+using Peter.MinimalApi.Testing;
 using Xunit;
 
-namespace Peter.Tests;
+namespace Peter.MinimalApi.Tests;
 
 public class Initializer : IServerFixtureInitializer
 {
@@ -22,11 +23,11 @@ public class Initializer : IServerFixtureInitializer
     }
 }
 
-public class InitializerShould : IClassFixture<ServerFixture<Program, Initializer>>
+public class ServerFixtureInitializerShould : IClassFixture<ServerFixture<IApiMarker, Initializer>>
 {
-    private readonly ServerFixture<Program, Initializer> _fixture;
+    private readonly ServerFixture<IApiMarker, Initializer> _fixture;
 
-    public InitializerShould(ServerFixture<Program, Initializer> fixture) => _fixture = fixture;
+    public ServerFixtureInitializerShould(ServerFixture<IApiMarker, Initializer> fixture) => _fixture = fixture;
 
     [Fact]
     public async Task be_invoked_when_the_test_server_is_created()

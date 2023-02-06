@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Peter.Testing;
+namespace Peter.MinimalApi.Testing;
 
 public interface IServerFixtureInitializer
 {

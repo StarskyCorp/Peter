@@ -2,16 +2,23 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Peter.Testing;
+using GreetingsApi;
+using Peter.MinimalApi.Testing;
 using Xunit;
 
-namespace Peter.Tests;
+namespace Peter.MinimalApi.Tests;
 
-public class Class_GreetingsApiShould : IClassFixture<ServerFixture<Program>>
+[CollectionDefinition(nameof(DatabaseCollectionFixture))]
+public class DatabaseCollectionFixture : ICollectionFixture<ServerFixture<IApiMarker>>
 {
-    private readonly ServerFixture<Program> _fixture;
+}
 
-    public Class_GreetingsApiShould(ServerFixture<Program> fixture) => _fixture = fixture;
+[Collection(nameof(DatabaseCollectionFixture))]
+public class ServerFixtureInCollectionFixtureShould
+{
+    private readonly ServerFixture<IApiMarker> _fixture;
+
+    public ServerFixtureInCollectionFixtureShould(ServerFixture<IApiMarker> fixture) => _fixture = fixture;
 
     [Fact]
     public async Task greet()
@@ -34,5 +41,13 @@ public class Class_GreetingsApiShould : IClassFixture<ServerFixture<Program>>
         var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/Authenticated");
         response.Should().StartWith("Hello Peter!");
         response.Should().EndWith(string.Join<Claim>(",", claims));
+    }
+
+    [Fact]
+    public async Task invoke_initializer()
+    {
+
+        var response = await _fixture.Client().GetStringAsync("/Peter");
+        response.Should().Be("Hello Peter!");
     }
 }
