@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -8,19 +7,11 @@ using Xunit;
 
 namespace Peter.Tests;
 
-public class ClassFixtureInitializer : IPeterInitializer
+public class Class_GreetingsApiShould : IClassFixture<ServerFixture<Program>>
 {
-    public void Initialize(IServiceProvider services)
-    {
-        //TODO: Initialize database or other stuff
-    }
-}
+    private readonly ServerFixture<Program> _fixture;
 
-public class Class_GreetingsApiShould : IClassFixture<ServerFixture<Program, ClassFixtureInitializer>>
-{
-    private readonly ServerFixture<Program, ClassFixtureInitializer> _fixture;
-
-    public Class_GreetingsApiShould(ServerFixture<Program, ClassFixtureInitializer> fixture) => _fixture = fixture;
+    public Class_GreetingsApiShould(ServerFixture<Program> fixture) => _fixture = fixture;
 
     [Fact]
     public async Task greet()

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -9,24 +8,16 @@ using Xunit;
 namespace Peter.Tests;
 
 [CollectionDefinition("Database collection")]
-public class DatabaseCollectionFixture : ICollectionFixture<ServerFixture<Program, DatabaseCollectionInitializer>>
+public class DatabaseCollectionFixture : ICollectionFixture<ServerFixture<Program>>
 {
-}
-
-public class DatabaseCollectionInitializer : IPeterInitializer
-{
-    public void Initialize(IServiceProvider services)
-    {
-        //TODO: Initialize database or other stuff
-    }
 }
 
 [Collection("Database collection")]
 public class Collection_GreetingsApiShould
 {
-    private readonly ServerFixture<Program, DatabaseCollectionInitializer> _fixture;
+    private readonly ServerFixture<Program> _fixture;
 
-    public Collection_GreetingsApiShould(ServerFixture<Program, DatabaseCollectionInitializer> fixture) => _fixture = fixture;
+    public Collection_GreetingsApiShould(ServerFixture<Program> fixture) => _fixture = fixture;
 
     [Fact]
     public async Task greet()
@@ -49,5 +40,13 @@ public class Collection_GreetingsApiShould
         var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/Authenticated");
         response.Should().StartWith("Hello Peter!");
         response.Should().EndWith(string.Join<Claim>(",", claims));
+    }
+
+    [Fact]
+    public async Task invoke_initializer()
+    {
+
+        var response = await _fixture.Client().GetStringAsync("/Peter");
+        response.Should().Be("Hello Peter!");
     }
 }
