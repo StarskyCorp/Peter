@@ -37,6 +37,14 @@ app.MapGet("/failed", () =>
     var result = Result<object>.CreateFailure(new[] { "A failure" });
     return result.ToMinimalApi();
 });
+app.MapGet("/failed_no_problem_details", () =>
+{
+    var result = Result<object>.CreateFailure(new[] { "A failure" });
+    return result.ToMinimalApi(options =>
+    {
+        options.UseProblemDetails = false;
+    });
+});
 
 app.MapGet("/not_exists", () =>
 {

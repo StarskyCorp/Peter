@@ -7,23 +7,40 @@ public static class ResultExtensions
 {
     public static IResult ToMinimalApi<T>(this Result<T> result, Action<ToMinimalApiOptions> configure)
     {
-        //TODO: Options 
         var options = new ToMinimalApiOptions();
         configure(options);
 
         return result.Status switch
         {
             ResultStatus.Success => Results.Ok(result.Value),
-            ResultStatus.Failure => Results.Problem(), // TODO: check this case 
+            ResultStatus.Failure => ManageProblem(result, options),
             ResultStatus.NotExists => Results.NotFound(result.Value),
-            ResultStatus.Invalid => Results.ValidationProblem(result.ToProblemDetails()),
-            _ => throw new ArgumentOutOfRangeException()
+            ResultStatus.Invalid => ManageInvalid(result, options),
+            _ => throw new ArgumentOutOfRangeException(nameof(result))
         };
     }
 
-    public static IResult ToMinimalApi<T>(this Result<T> result)
+    public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
+
+    private static IResult ManageProblem<T>(Result<T> result, ToMinimalApiOptions options)
     {
-        return result.ToMinimalApi(_ => { });
+        if (options.UseProblemDetails && result.Errors != null)
+        {
+            return Results.Problem(detail: string.Join(",", result.Errors),
+                title: "Error",
+                statusCode: StatusCodes.Status500InternalServerError);
+        }
+        return Results.StatusCode(500);
+    }
+
+    private static IResult ManageInvalid<T>(Result<T> result, ToMinimalApiOptions options)
+    {
+        if (options.UseProblemDetails)
+        {
+            return Results.ValidationProblem(result.ToProblemDetails());
+        }
+
+        return Results.BadRequest(result.ValidationErrors);
     }
 
     public static IDictionary<string, string[]> ToProblemDetails<T>(this Result<T> result)
@@ -34,8 +51,4 @@ public static class ResultExtensions
 
         return details ?? new Dictionary<string, string[]>();
     }
-}
-
-public class ToMinimalApiOptions
-{
 }

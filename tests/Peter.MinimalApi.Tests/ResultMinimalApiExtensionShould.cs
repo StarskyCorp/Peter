@@ -7,21 +7,19 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using GreetingsApi;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Peter.MinimalApi.Tests;
 
 public class ResultMinimalApiExtensionShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {
-    private readonly WebApplicationFactory<IApiMarker> _app;
     private readonly HttpClient _client;
 
-    public ResultMinimalApiExtensionShould(WebApplicationFactory<IApiMarker> app)
-    {
-        _app = app;
-        _client = app.CreateDefaultClient();
-    }
+    public ResultMinimalApiExtensionShould(WebApplicationFactory<IApiMarker> app) => _client = app.CreateDefaultClient();
+
     [Fact]
     public async Task return_ok()
     {
@@ -33,9 +31,19 @@ public class ResultMinimalApiExtensionShould : IClassFixture<WebApplicationFacto
     }
 
     [Fact]
-    public async Task return_failed()
+    public async Task return_failed_using_problem_details()
     {
         var response = await _client.GetAsync("failed");
+        var details = JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync());
+        details.Status.Should().Be(StatusCodes.Status500InternalServerError);
+        details.Title.Should().Be("Error");
+        details.Detail.Should().Be("A failure");
+    }
+
+    [Fact]
+    public async Task return_failed()
+    {
+        var response = await _client.GetAsync("failed_no_problem_details");
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
