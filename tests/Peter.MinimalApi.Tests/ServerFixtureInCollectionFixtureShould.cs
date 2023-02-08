@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Api.Tests;
 using FluentAssertions;
-using GreetingsApi;
 using Peter.MinimalApi.Testing;
 using Xunit;
 

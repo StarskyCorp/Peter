@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreetingsApi", "tests\GreetingsApi\GreetingsApi.csproj", "{61D72FBE-AA70-446B-B2B3-F21DF3343149}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Tests", "tests\GreetingsApi\Api.Tests.csproj", "{61D72FBE-AA70-446B-B2B3-F21DF3343149}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.Result", "src\Peter.Result\Peter.Result.csproj", "{7CC4072C-D5C1-4309-BF0A-EB415B04847E}"
 EndProject
@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi", "src\Pet
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.Tests", "tests\Peter.MinimalApi.Tests\Peter.MinimalApi.Tests.csproj", "{8BEE7814-A4BB-46B2-9D75-D2BD68A45F4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peter.MinimalApi.MediatR", "src\Peter.MinimalApi.MediatR\Peter.MinimalApi.MediatR.csproj", "{A719E25C-949D-4A29-8580-716BA51506A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.MediatR", "src\Peter.MinimalApi.MediatR\Peter.MinimalApi.MediatR.csproj", "{A719E25C-949D-4A29-8580-716BA51506A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

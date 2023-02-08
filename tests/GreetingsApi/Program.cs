@@ -1,8 +1,8 @@
-﻿using FluentValidation;
-using GreetingsApi;
-using GreetingsApi.Features.Commands;
-using GreetingsApi.Features.Queries;
-using GreetingsApi.Features.Validation;
+﻿using Api.Tests;
+using Api.Tests.Features.Commands;
+using Api.Tests.Features.Queries;
+using Api.Tests.Features.Validation;
+using FluentValidation;
 using MediatR;
 using Peter.MinimalApi.Modules;
 using Peter.Result;

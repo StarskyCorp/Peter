@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Api.Tests;
 using FluentAssertions;
-using GreetingsApi;
 using Moq;
 using Peter.MinimalApi.Testing;
 using Xunit;

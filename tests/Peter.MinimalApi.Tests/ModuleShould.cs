@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using Api.Tests;
 using FluentAssertions;
-using GreetingsApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 

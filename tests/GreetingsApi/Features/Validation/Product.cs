@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace GreetingsApi.Features.Validation;
+namespace Api.Tests.Features.Validation;
 
 public class Product
 {

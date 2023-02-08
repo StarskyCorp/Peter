@@ -1,6 +1,6 @@
 ﻿using Peter.MinimalApi.Modules;
 
-namespace GreetingsApi.Features.Modules;
+namespace Api.Tests.Features.Modules;
 
 public class CustomersModule : IModule
 {

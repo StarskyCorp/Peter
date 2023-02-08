@@ -1,6 +1,6 @@
 ﻿using Peter.MinimalApi.Validation;
 
-namespace GreetingsApi.Features.Validation;
+namespace Api.Tests.Features.Validation;
 
 public static class ValidationEndpoints
 {

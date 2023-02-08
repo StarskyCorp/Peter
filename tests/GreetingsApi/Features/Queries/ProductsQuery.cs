@@ -1,7 +1,7 @@
-﻿using GreetingsApi.Features.Validation;
+﻿using Api.Tests.Features.Validation;
 using MediatR;
 
-namespace GreetingsApi.Features.Queries;
+namespace Api.Tests.Features.Queries;
 
 public class ProductsQuery : IRequest<IEnumerable<Product>>
 {

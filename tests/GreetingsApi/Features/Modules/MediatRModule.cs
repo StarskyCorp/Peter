@@ -1,9 +1,9 @@
-﻿using GreetingsApi.Features.Commands;
-using GreetingsApi.Features.Queries;
-using GreetingsApi.Features.Validation;
+﻿using Api.Tests.Features.Commands;
+using Api.Tests.Features.Queries;
+using Api.Tests.Features.Validation;
 using Peter.MinimalApi.Modules;
 
-namespace GreetingsApi.Features.Modules;
+namespace Api.Tests.Features.Modules;
 
 public class MediatRModule : IModule
 {

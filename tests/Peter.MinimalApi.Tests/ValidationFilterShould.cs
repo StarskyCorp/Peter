@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Api.Tests;
+using Api.Tests.Features.Validation;
 using FluentAssertions;
-using GreetingsApi;
-using GreetingsApi.Features.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
@@ -50,6 +50,6 @@ public class ValidationFilterShould : IClassFixture<WebApplicationFactory<IApiMa
         var content = await response.Content.ReadAsStringAsync();
         content.Should()
             .StartWith(
-                "System.InvalidOperationException: No service for type 'FluentValidation.IValidator`1[GreetingsApi.Features.Validation.ProductWithoutCustomValidator]' has been registered.");
+                "System.InvalidOperationException: No service for type 'FluentValidation.IValidator`1[Api.Tests.Features.Validation.ProductWithoutCustomValidator]' has been registered.");
     }
 }

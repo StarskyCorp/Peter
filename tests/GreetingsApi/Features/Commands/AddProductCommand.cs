@@ -1,7 +1,7 @@
-﻿using GreetingsApi.Features.Validation;
+﻿using Api.Tests.Features.Validation;
 using MediatR;
 
-namespace GreetingsApi.Features.Commands;
+namespace Api.Tests.Features.Commands;
 
 public class AddProductCommand : IRequest<Product>
 {
