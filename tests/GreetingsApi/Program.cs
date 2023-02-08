@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
 using GreetingsApi;
+using GreetingsApi.Features.Commands;
+using GreetingsApi.Features.Queries;
 using GreetingsApi.Features.Validation;
+using MediatR;
 using Peter.MinimalApi.Modules;
 using Peter.Result;
 
@@ -10,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IValidator<Product>, Product.ProductValidator>();
+builder.Services.AddMediatR(typeof(IApiMarker));
 
 WebApplication app = builder.Build();
 
@@ -63,6 +67,11 @@ app.MapGet("/invalid", () =>
     var result = Result<object>.CreateInvalid(new[] { new ValidationError("peter", "message") });
     return result.ToMinimalApi();
 });
+
+app.MapGetMediatR<ProductsQuery, IEnumerable<Product>>("/mediatrProducts");
+app.MapPostMediatR<AddProductCommand, Product>("/mediatrProducts");
+app.MapPutMediatR<UpdateProductCommand, Product>("/mediatrProducts");
+app.MapPatchMediatR<UpdateProductCommand, Product>("/mediatrProducts");
 
 app.AddValidationEndpoints();
 
