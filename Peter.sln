@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.MediatR", "src\Peter.MinimalApi.MediatR\Peter.MinimalApi.MediatR.csproj", "{A719E25C-949D-4A29-8580-716BA51506A7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0C7BFE0D-0C79-4120-A522-2C90DD09DD26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{61D72FBE-AA70-446B-B2B3-F21DF3343149} = {0C7BFE0D-0C79-4120-A522-2C90DD09DD26}
+		{C8DC4922-5C27-452B-9716-DE4875AD4A4A} = {0C7BFE0D-0C79-4120-A522-2C90DD09DD26}
+		{8BEE7814-A4BB-46B2-9D75-D2BD68A45F4C} = {0C7BFE0D-0C79-4120-A522-2C90DD09DD26}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2289E5B-CACD-4633-A317-613881819B9E}
