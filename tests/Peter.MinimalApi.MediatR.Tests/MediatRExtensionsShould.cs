@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace Peter.MinimalApi.Tests;
+namespace Peter.MinimalApi.MediatR.Tests;
 
 public class MediatRExtensionsShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {

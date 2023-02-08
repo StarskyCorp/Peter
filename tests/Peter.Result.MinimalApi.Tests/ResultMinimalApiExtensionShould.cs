@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace Peter.MinimalApi.Tests;
+namespace Peter.Result.MinimalApi.Tests;
 
 public class ResultMinimalApiExtensionShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {

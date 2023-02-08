@@ -1,6 +1,6 @@
 # Peter
 
- [![CI Build Status]](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)
+ CI Build Status [![CI Build Status]](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)
 
 ## About Peter
 
@@ -10,7 +10,7 @@ It provides:
 - A test server ready to use for integration testing of your API, supporting secured endpoints
 - A type Result<T> useful to return both results and errors, from commands and queries, being able to map them to http results
 - A solution for minimal api modules organization
-- Extension methods to help you create thin action methods with Mediatr
+- Extension methods to help you create thin action methods with MediatR
 - API url discovery tools (not yet available)
 
 ## Packages
