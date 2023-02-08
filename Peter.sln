@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.Result", "src\Peter.R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.Result.Tests", "tests\Peter.Result.Tests\Peter.Result.Tests.csproj", "{C8DC4922-5C27-452B-9716-DE4875AD4A4A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.Result.MinimalApi", "src\Peter.Result.MinimalAPI\Peter.Result.MinimalApi.csproj", "{F671B59B-89BB-431E-BC9B-D0212434EC10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.Result.MinimalApi", "src\Peter.Result.MinimalApi\Peter.Result.MinimalApi.csproj", "{F671B59B-89BB-431E-BC9B-D0212434EC10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi", "src\Peter.MinimalAPI\Peter.MinimalApi.csproj", "{C4D0B301-8700-4A12-B525-8AEE9AB1F5FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi", "src\Peter.MinimalApi\Peter.MinimalApi.csproj", "{C4D0B301-8700-4A12-B525-8AEE9AB1F5FF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.Tests", "tests\Peter.MinimalApi.Tests\Peter.MinimalApi.Tests.csproj", "{8BEE7814-A4BB-46B2-9D75-D2BD68A45F4C}"
 EndProject
