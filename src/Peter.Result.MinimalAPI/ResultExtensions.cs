@@ -13,7 +13,7 @@ public static class ResultExtensions
         return result.Status switch
         {
             ResultStatus.Success => Results.Ok(result.Value),
-            ResultStatus.Failure => ManageProblem(result, options),
+            ResultStatus.Failure => ManageFailure(result, options),
             ResultStatus.NotExists => Results.NotFound(result.Value),
             ResultStatus.Invalid => ManageInvalid(result, options),
             _ => throw new ArgumentOutOfRangeException(nameof(result))
@@ -22,7 +22,7 @@ public static class ResultExtensions
 
     public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
-    private static IResult ManageProblem<T>(Result<T> result, ToMinimalApiOptions options)
+    private static IResult ManageFailure<T>(Result<T> result, ToMinimalApiOptions options)
     {
         if (options.UseProblemDetails && result.Errors != null)
         {
