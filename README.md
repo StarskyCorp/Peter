@@ -1,6 +1,6 @@
 # Peter
 
- * CI Build Status [![Build Status](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)
+ * CI Build Status [![Build Status]](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)
 
 
 ## About Peter
