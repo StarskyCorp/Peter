@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.MediatR.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Tests", "tests\Api.Tests\Api.Tests.csproj", "{DDC90053-E7CF-4023-B3A5-9347BBA326BC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.All", "src\Peter.All\Peter.All.csproj", "{1A8AAE6F-B4BD-4184-8A95-DAB48CB2B3EB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.Testing", "src\Peter.MinimalApi.Testing\Peter.MinimalApi.Testing.csproj", "{44478E36-8C52-4D73-8249-6CE050A8CCD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,14 @@ Global
 		{DDC90053-E7CF-4023-B3A5-9347BBA326BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDC90053-E7CF-4023-B3A5-9347BBA326BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDC90053-E7CF-4023-B3A5-9347BBA326BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A8AAE6F-B4BD-4184-8A95-DAB48CB2B3EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A8AAE6F-B4BD-4184-8A95-DAB48CB2B3EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A8AAE6F-B4BD-4184-8A95-DAB48CB2B3EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A8AAE6F-B4BD-4184-8A95-DAB48CB2B3EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

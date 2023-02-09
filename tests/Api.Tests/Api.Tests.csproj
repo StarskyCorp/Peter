@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Peter.MinimalApi.MediatR\Peter.MinimalApi.MediatR.csproj" />
+    <ProjectReference Include="..\..\src\Peter.MinimalApi.Testing\Peter.MinimalApi.Testing.csproj" />
     <ProjectReference Include="..\..\src\Peter.MinimalApi\Peter.MinimalApi.csproj" />
     <ProjectReference Include="..\..\src\Peter.Result.MinimalApi\Peter.Result.MinimalApi.csproj" />
     <ProjectReference Include="..\..\src\Peter.Result\Peter.Result.csproj" />
