@@ -13,7 +13,7 @@
 		<ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
 		<Deterministic>true</Deterministic>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<Version>0.0.1</Version>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
