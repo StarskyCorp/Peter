@@ -8,7 +8,6 @@ jobs:
     permissions: write-all
     env:
       BUILD_CONFIG: Release
-
     runs-on: ubuntu-latest
 
     steps:
@@ -32,26 +31,55 @@ jobs:
       run: dotnet test -c $BUILD_CONFIG --no-build --verbosity normal
 
     - name: Package Peter.MinimalApi
-      run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi/Peter.MinimalApi.csproj
+      run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi/Peter.MinimalApi.csproj -o packages
 
     - name: Package Peter.Result
-      run: dotnet pack -c $BUILD_CONFIG src/Peter.Result/Peter.Result.csproj
+      run: dotnet pack -c $BUILD_CONFIG src/Peter.Result/Peter.Result.csproj -o packages
 
     - name: Package Peter.Result.MinimalApi
-      run: dotnet pack -c $BUILD_CONFIG src/Peter.Result.MinimalApi/Peter.Result.MinimalApi.csproj
+      run: dotnet pack -c $BUILD_CONFIG src/Peter.Result.MinimalApi/Peter.Result.MinimalApi.csproj -o packages
 
     - name: Package Peter.MinimalApi.MediatR
-      run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi.MediatR/Peter.MinimalApi.MediatR.csproj
+      run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi.MediatR/Peter.MinimalApi.MediatR.csproj -o packages
 
-    - name: Publish
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        path: packages    
+
+    - name: Publish if branch is main
       if: github.ref == 'refs/heads/main'
       run: |
-        dotnet nuget push .\src\Peter\bin\Release\*.nupkg --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
+        dotnet nuget push .\packages\*.nupkg --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
       shell: pwsh
       env:
         NUGET_API_KEY:  ${{ secrets.NUGET_API_KEY }}
 
-    # - name: Upload a Build Artifact
-    #   uses: actions/upload-artifact@v2.2.2
-    #   with:
-    #     path: src/Peter/bin/${{ env.BUILD_CONFIG }}    
+    - name: Get version
+      id: version
+      run: |
+        $version = Get-Content -Path .\src\Peter.MinimalApi\Peter.MinimalApi.csproj | Where-Object { $_ -Like "*<Version>*" }
+        if ($version) {
+            $version = $version.Trim().Substring("<Version>".Length)
+            $version = $version.Substring(0, $version.IndexOf("</Version>"))
+        }
+        else {
+            $version = "1.0.0"
+        }
+        echo "::set-output name=version::$version"
+      shell: pwsh
+
+    - name: Version tag
+      if: github.ref == 'refs/heads/main'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/${process.env.PACKAGE_VERSION}`,
+            sha: context.sha
+          })
+      env:
+        PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+      continue-on-error: true
