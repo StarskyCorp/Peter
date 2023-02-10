@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>AspNetCore.$(MSBuildProjectName)</PackageId>
+    <PackageId>$(MSBuildProjectName)</PackageId>
 
     <GenerateDocumentationFile>false</GenerateDocumentationFile> <!--Temporary until we create xml for all public assets-->
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
