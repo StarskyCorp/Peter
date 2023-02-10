@@ -33,6 +33,9 @@ jobs:
     - name: Package Peter.MinimalApi
       run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi/Peter.MinimalApi.csproj -o packages
 
+    - name: Package Peter.MinimalApi.Testing
+      run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi.Testing/Peter.MinimalApi.Testing.csproj -o packages
+
     - name: Package Peter.Result
       run: dotnet pack -c $BUILD_CONFIG src/Peter.Result/Peter.Result.csproj -o packages
 
@@ -41,6 +44,9 @@ jobs:
 
     - name: Package Peter.MinimalApi.MediatR
       run: dotnet pack -c $BUILD_CONFIG src/Peter.MinimalApi.MediatR/Peter.MinimalApi.MediatR.csproj -o packages
+
+    - name: Package Peter.All
+      run: dotnet pack -c $BUILD_CONFIG src/Peter.All/Peter.All.csproj -o packages
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.2
@@ -58,7 +64,7 @@ jobs:
     - name: Get version
       id: version
       run: |
-        $version = Get-Content -Path .\src\Peter.MinimalApi\Peter.MinimalApi.csproj | Where-Object { $_ -Like "*<Version>*" }
+        $version = Get-Content -Path .\src\Peter.All\Peter.All.csproj | Where-Object { $_ -Like "*<Version>*" }
         if ($version) {
             $version = $version.Trim().Substring("<Version>".Length)
             $version = $version.Substring(0, $version.IndexOf("</Version>"))

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Peter.MinimalApi.MediatR\Peter.MinimalApi.MediatR.csproj" />
+    <ProjectReference Include="..\Peter.MinimalApi.Testing\Peter.MinimalApi.Testing.csproj" />
+    <ProjectReference Include="..\Peter.MinimalApi\Peter.MinimalApi.csproj" />
+    <ProjectReference Include="..\Peter.Result.MinimalApi\Peter.Result.MinimalApi.csproj" />
+    <ProjectReference Include="..\Peter.Result\Peter.Result.csproj" />
+  </ItemGroup>
+
+</Project>
