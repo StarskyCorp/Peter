@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Api.Tests;
+﻿using Api.Tests;
 using FluentAssertions;
 using Moq;
 using Peter.MinimalApi.Testing;
