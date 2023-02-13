@@ -1,6 +1,8 @@
 # Peter
 
-[![Build status](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)
+[![Build status](https://github.com/StarskyCorp/Peter/actions/workflows/ci.yaml/badge.svg?ref=main)](https://github.com/StarskyCorp/Peter/actions?query=workflow%3ACI) 
+[![NET](https://img.shields.io/badge/dotnet%20version-net7.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+
 
 ## About Peter
 
