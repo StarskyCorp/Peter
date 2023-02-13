@@ -68,10 +68,11 @@ app.MapGet("/invalid", () =>
     return result.ToMinimalApi();
 });
 
-app.MapGetMediatR<ProductsQuery, IEnumerable<Product>>("/mediatrProducts");
-app.MapPostMediatR<AddProductCommand, Product>("/mediatrProducts");
-app.MapPutMediatR<UpdateProductCommand, Product>("/mediatrProducts");
-app.MapPatchMediatR<UpdateProductCommand, Product>("/mediatrProducts");
+app.MapGet<ProductsQuery, IEnumerable<Product>>("/mediatrProducts");
+app.MapPost<AddProductCommand, Product>("/mediatrProducts");
+app.MapPut<UpdateProductCommand, Product>("/mediatrProducts");
+app.MapPatch<UpdateProductCommand, Product>("/mediatrProducts");
+app.MapDelete<DeleteProductCommand, Unit>("/mediatrProducts/{id}");
 
 app.AddValidationEndpoints();
 

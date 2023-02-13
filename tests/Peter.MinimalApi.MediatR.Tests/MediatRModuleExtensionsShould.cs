@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using Api.Tests;
 using Api.Tests.Features.Commands;
 using Api.Tests.Features.Validation;
@@ -60,5 +61,12 @@ public class MediatRModuleExtensionsShould : IClassFixture<WebApplicationFactory
         addedProduct.Name.Should().Be("Updated again");
         addedProduct.Id.Should().Be(32);
         //TODO: Check with System.Text.Json
+    }
+
+    [Fact]
+    public async Task map_delete_to_query()
+    {
+        var response = await _client.DeleteAsync("/MediatRGroupProducts/5");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

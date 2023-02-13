@@ -1,6 +1,7 @@
 ﻿using Api.Tests.Features.Commands;
 using Api.Tests.Features.Queries;
 using Api.Tests.Features.Validation;
+using MediatR;
 using Peter.MinimalApi.Modules;
 
 namespace Api.Tests.Features.Modules;
@@ -11,10 +12,11 @@ public class MediatRModule : IModule
     {
         var routeGroupBuilder = app.MapGroup("/MediatRGroupProducts").WithTags("MediatRGroupProducts");
 
-        routeGroupBuilder.MapGetMediatR<ProductsQuery, IEnumerable<Product>>("/");
-        routeGroupBuilder.MapPostMediatR<AddProductCommand, Product>("/");
-        routeGroupBuilder.MapPutMediatR<UpdateProductCommand, Product>("/");
-        routeGroupBuilder.MapPatchMediatR<UpdateProductCommand, Product>("/");
+        routeGroupBuilder.MapGet<ProductsQuery, IEnumerable<Product>>("/");
+        routeGroupBuilder.MapPost<AddProductCommand, Product>("/");
+        routeGroupBuilder.MapPut<UpdateProductCommand, Product>("/");
+        routeGroupBuilder.MapPatch<UpdateProductCommand, Product>("/");
+        routeGroupBuilder.MapDelete<DeleteProductCommand, Unit>("/{id}");
         return app;
     }
 }
