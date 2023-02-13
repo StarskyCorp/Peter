@@ -14,6 +14,7 @@ builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IValidator<Product>, Product.ProductValidator>();
 builder.Services.AddMediatR(typeof(IApiMarker));
+builder.Services.AddAutoMapper(typeof(IApiMarker));
 
 WebApplication app = builder.Build();
 

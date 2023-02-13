@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
@@ -14,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Peter.MinimalApi.MediatRAutoMapper\Peter.MinimalApi.MediatRAutoMapper.csproj" />
     <ProjectReference Include="..\..\src\Peter.MinimalApi.MediatR\Peter.MinimalApi.MediatR.csproj" />
     <ProjectReference Include="..\..\src\Peter.MinimalApi.Testing\Peter.MinimalApi.Testing.csproj" />
     <ProjectReference Include="..\..\src\Peter.MinimalApi\Peter.MinimalApi.csproj" />

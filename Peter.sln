@@ -36,6 +36,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.Testing", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7752608A-241F-48F5-84A9-156F02B87D7D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.MediatRAutoMapper", "src\Peter.MinimalApi.MediatRAutoMapper\Peter.MinimalApi.MediatRAutoMapper.csproj", "{C3009668-BC10-43A6-A2AF-0007909FF3CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peter.MinimalApi.MediatRAutoMapper.Tests", "tests\Peter.MinimalApi.MediatRAutoMapper.Tests\Peter.MinimalApi.MediatRAutoMapper.Tests.csproj", "{3B70B073-00BC-4F53-A401-8CEBE4479CF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +90,14 @@ Global
 		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44478E36-8C52-4D73-8249-6CE050A8CCD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3009668-BC10-43A6-A2AF-0007909FF3CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3009668-BC10-43A6-A2AF-0007909FF3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3009668-BC10-43A6-A2AF-0007909FF3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3009668-BC10-43A6-A2AF-0007909FF3CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B70B073-00BC-4F53-A401-8CEBE4479CF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B70B073-00BC-4F53-A401-8CEBE4479CF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B70B073-00BC-4F53-A401-8CEBE4479CF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B70B073-00BC-4F53-A401-8CEBE4479CF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +114,8 @@ Global
 		{DDC90053-E7CF-4023-B3A5-9347BBA326BC} = {0C7BFE0D-0C79-4120-A522-2C90DD09DD26}
 		{1A8AAE6F-B4BD-4184-8A95-DAB48CB2B3EB} = {7752608A-241F-48F5-84A9-156F02B87D7D}
 		{44478E36-8C52-4D73-8249-6CE050A8CCD2} = {7752608A-241F-48F5-84A9-156F02B87D7D}
+		{C3009668-BC10-43A6-A2AF-0007909FF3CD} = {7752608A-241F-48F5-84A9-156F02B87D7D}
+		{3B70B073-00BC-4F53-A401-8CEBE4479CF7} = {0C7BFE0D-0C79-4120-A522-2C90DD09DD26}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2289E5B-CACD-4633-A317-613881819B9E}
