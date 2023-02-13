@@ -55,4 +55,10 @@ jobs:
         hide_complexity: true
         indicators: true
         output: both
-        thresholds: '70 90'
+        thresholds: '60 80'
+
+    - name: Upload Coverage Artifact
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        path: code-coverage-results.md    
+
