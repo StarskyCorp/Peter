@@ -6,32 +6,27 @@ using Xunit;
 
 namespace Peter.MinimalApi.Tests;
 
-public class Initializer : IServerFixtureInitializer
+public class ServerFixtureInitializer : IServerFixtureInitializer
 {
-    public static Mock<IServerFixtureInitializer> _initializer;
+    public static readonly Mock<IServerFixtureInitializer> _initializer;
 
-    static Initializer()
-    {
-        _initializer = new Mock<IServerFixtureInitializer>();
-    }
+    static ServerFixtureInitializer() => _initializer = new Mock<IServerFixtureInitializer>();
 
-    public void Initialize(IServiceProvider services)
-    {
-        _initializer.Object.Initialize(services);
-    }
+    public void Initialize(IServiceProvider services) => _initializer.Object.Initialize(services);
 }
 
-public class ServerFixtureInitializerShould : IClassFixture<ServerFixture<IApiMarker, Initializer>>
+public class ServerFixtureInitializerShould : IClassFixture<ServerFixture<IApiMarker, ServerFixtureInitializer>>
 {
-    private readonly ServerFixture<IApiMarker, Initializer> _fixture;
+    private readonly ServerFixture<IApiMarker, ServerFixtureInitializer> _fixture;
 
-    public ServerFixtureInitializerShould(ServerFixture<IApiMarker, Initializer> fixture) => _fixture = fixture;
+    public ServerFixtureInitializerShould(ServerFixture<IApiMarker, ServerFixtureInitializer> fixture) =>
+        _fixture = fixture;
 
     [Fact]
     public async Task be_invoked_when_the_test_server_is_created()
     {
         var response = await _fixture.Client().GetStringAsync("/Peter");
         response.Should().Be("Hello Peter!");
-        Initializer._initializer.Verify(a => a.Initialize(It.IsAny<IServiceProvider>()));
+        ServerFixtureInitializer._initializer.Verify(a => a.Initialize(It.IsAny<IServiceProvider>()));
     }
 }

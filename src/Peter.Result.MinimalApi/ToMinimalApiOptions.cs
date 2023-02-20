@@ -1,4 +1,4 @@
-﻿namespace Peter.Result;
+﻿namespace Peter.Result.MinimalApi;
 
 public class ToMinimalApiOptions
 {

@@ -29,7 +29,7 @@ public class ServerFixtureInCollectionFixtureShould
     [Fact]
     public async Task greet_non_authenticated()
     {
-        var response = await _fixture.Client().GetAsync("/Peter/Authenticated");
+        HttpResponseMessage response = await _fixture.Client().GetAsync("/Peter/authenticated");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -37,15 +37,14 @@ public class ServerFixtureInCollectionFixtureShould
     public async Task greet_authenticated()
     {
         var claims = new Claim[] { new(ClaimTypes.Name, "Peter") };
-        var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/Authenticated");
+        var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/authenticated");
         response.Should().StartWith("Hello Peter!");
         response.Should().EndWith(string.Join<Claim>(",", claims));
     }
 
     [Fact]
-    public async Task invoke_initializer()
+    public async Task invoke_initialize_method()
     {
-
         var response = await _fixture.Client().GetStringAsync("/Peter");
         response.Should().Be("Hello Peter!");
     }

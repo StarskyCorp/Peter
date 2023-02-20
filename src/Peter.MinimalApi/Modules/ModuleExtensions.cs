@@ -11,7 +11,7 @@ public static class ModuleExtensions
 {
     public static IEndpointRouteBuilder MapModules<T>(this IEndpointRouteBuilder app) where T : class
     {
-        foreach (var module in GetModules<T>())
+        foreach (IModule? module in GetModules<T>())
         {
             module.MapEndpoints(app);
         }

@@ -23,7 +23,7 @@ public class ServerFixtureInClassFixtureShould : IClassFixture<ServerFixture<IAp
     [Fact]
     public async Task greet_non_authenticated()
     {
-        var response = await _fixture.Client().GetAsync("/Peter/Authenticated");
+        HttpResponseMessage? response = await _fixture.Client().GetAsync("/Peter/authenticated");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -31,7 +31,7 @@ public class ServerFixtureInClassFixtureShould : IClassFixture<ServerFixture<IAp
     public async Task greet_authenticated()
     {
         var claims = new Claim[] { new(ClaimTypes.Name, "Peter") };
-        var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/Authenticated");
+        var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/authenticated");
         response.Should().StartWith("Hello Peter!");
         response.Should().EndWith(string.Join<Claim>(",", claims));
     }

@@ -7,12 +7,10 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class TestAuthenticationExtensions
 {
-    public static AuthenticationBuilder AddTestAuthentication(this IServiceCollection services)
-    {
-        return services.AddAuthentication(defaultScheme: TestConstants.Authentication.TestScheme)
+    public static AuthenticationBuilder AddTestAuthentication(this IServiceCollection services) =>
+        services.AddAuthentication(defaultScheme: TestConstants.Authentication.TestScheme)
             .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
                 TestConstants.Authentication.TestScheme, _ => { });
-    }
 
     public static HttpClient WithIdentity(this HttpClient httpClient, IEnumerable<Claim> claims)
     {

@@ -9,38 +9,38 @@ using Xunit;
 
 namespace Peter.MinimalApi.Tests;
 
-public class ValidatedShould : IClassFixture<WebApplicationFactory<IApiMarker>>
+public class ValidatedAttributeShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {
     private readonly HttpClient _client;
 
-    public ValidatedShould(WebApplicationFactory<IApiMarker> factory)
-    {
+    public ValidatedAttributeShould(WebApplicationFactory<IApiMarker> factory) =>
         _client = factory.CreateDefaultClient();
-    }
 
     [Fact]
     public async Task validate_with_fail_when_data_is_not_valid()
     {
-        var response = await _client.PostAsJsonAsync("validate_using_validated", new Product { Id = 0, Name = null });
+        HttpResponseMessage response = await _client.PostAsJsonAsync("validate_using_validated_generic_type",
+            new Product { Id = 0, Name = null });
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var content = (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
+        HttpValidationProblemDetails content =
+            (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
         content.Errors.Should().HaveCount(2);
         content.Errors["Id"].Should().BeEquivalentTo("'Id' must be greater than '0'.");
         content.Errors["Name"].Should().BeEquivalentTo("'Name' must not be empty.");
     }
 
     [Fact]
-    public async Task validate_successfully_when_data_is_valid()
-    {
-        (await _client.PostAsJsonAsync("validate_using_validated", new Product { Id = 1, Name = "A product" }))
-            .StatusCode.Should().Be(HttpStatusCode.OK);
-    }
+    public async Task validate_successfully_when_data_is_valid() =>
+        (await _client.PostAsJsonAsync("validate_using_validated_generic_type",
+            new Product { Id = 1, Name = "A product" }))
+        .StatusCode.Should().Be(HttpStatusCode.OK);
 
     [Fact]
     public async Task fail_when_value_is_null()
     {
-        var response = await _client.PostAsJsonAsync<Product>("validate_using_validated", null);
+        HttpResponseMessage response =
+            await _client.PostAsJsonAsync<Product>("validate_using_validated_generic_type", null!);
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         (await response.Content.ReadAsStringAsync()).Should()
@@ -50,8 +50,8 @@ public class ValidatedShould : IClassFixture<WebApplicationFactory<IApiMarker>>
     [Fact]
     public async Task fail_when_there_is_not_a_custom_validator_registered()
     {
-        var response = await _client.PostAsJsonAsync(
-            "fail_validation_using_validated_when_there_is_not_a_custom_validator_registered",
+        HttpResponseMessage response = await _client.PostAsJsonAsync(
+            "fail_validation_using_validated_generic_type_when_there_is_not_a_custom_validator_registered",
             new ProductWithoutCustomValidator { Id = 0, Name = null });
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);

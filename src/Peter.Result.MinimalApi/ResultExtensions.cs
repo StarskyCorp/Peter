@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Peter.Result.MinimalApi;
 
 // ReSharper disable once CheckNamespace
 namespace Peter.Result;
@@ -30,20 +31,15 @@ public static class ResultExtensions
                 title: "Error",
                 statusCode: StatusCodes.Status500InternalServerError);
         }
+
         return Results.StatusCode(500);
     }
 
-    private static IResult ManageInvalid<T>(Result<T> result, ToMinimalApiOptions options)
-    {
-        if (options.UseProblemDetails)
-        {
-            return Results.ValidationProblem(result.ToProblemDetails());
-        }
+    private static IResult ManageInvalid<T>(Result<T> result, ToMinimalApiOptions options) => options.UseProblemDetails
+        ? Results.ValidationProblem(result.ToProblemDetails())
+        : Results.BadRequest(result.ValidationErrors);
 
-        return Results.BadRequest(result.ValidationErrors);
-    }
-
-    public static IDictionary<string, string[]> ToProblemDetails<T>(this Result<T> result)
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this Result<T> result)
     {
         var details = result.ValidationErrors?
             .GroupBy(x => x.Field)

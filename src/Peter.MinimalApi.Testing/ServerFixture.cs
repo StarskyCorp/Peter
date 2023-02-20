@@ -11,25 +11,21 @@ public class ServerFixture<T> : WebApplicationFactory<T> where T : class
     public HttpClient Client() => CreateDefaultClient();
     public HttpClient AuthenticatedClient(IEnumerable<Claim> claims) => CreateDefaultClient().WithIdentity(claims);
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
+    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder.ConfigureTestServices(services =>
         {
             services.AddTestAuthentication();
         });
-    }
 }
 
 public class ServerFixture<T, Q> : ServerFixture<T> where T : class where Q : IServerFixtureInitializer, new()
 {
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
         builder.ConfigureTestServices(services =>
         {
-            var sp = services.BuildServiceProvider();
-            using var scope = sp.CreateScope();
+            using IServiceScope scope = services.BuildServiceProvider().CreateScope();
             var initializer = new Q();
             initializer.Initialize(scope.ServiceProvider);
         });

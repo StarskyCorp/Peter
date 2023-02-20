@@ -16,7 +16,7 @@ public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSch
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        string authorizationHeaderValue = Context.Request.Headers[TestConstants.Authentication.HeaderName];
+        string? authorizationHeaderValue = Context.Request.Headers[TestConstants.Authentication.HeaderName];
 
         if (string.IsNullOrEmpty(authorizationHeaderValue))
         {
@@ -28,8 +28,8 @@ public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSch
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        var serializedClaims = authorizationHeaderValue.Substring($"{Scheme.Name} ".Length).Trim();
-        var claims = ClaimsSerializer.Deserialize(serializedClaims);
+        var serializedClaims = authorizationHeaderValue[$"{Scheme.Name} ".Length..].Trim();
+        IEnumerable<Claim> claims = ClaimsSerializer.Deserialize(serializedClaims);
 
         Logger.LogInformation("{Scheme} Authenticated", Scheme.Name);
 

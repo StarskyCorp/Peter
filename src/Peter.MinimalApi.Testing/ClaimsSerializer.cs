@@ -21,7 +21,7 @@ internal static class ClaimsSerializer
             return Enumerable.Empty<Claim>();
         }
         var serializer = new TicketSerializer();
-        AuthenticationTicket ticket = serializer.Deserialize(Convert.FromBase64String(text));
-        return ticket?.Principal.Claims;
+        AuthenticationTicket ticket = serializer.Deserialize(Convert.FromBase64String(text))!;
+        return ticket.Principal.Claims;
     }
 }

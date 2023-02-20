@@ -34,13 +34,13 @@ public class Validated<T>
 
     public static async ValueTask<Validated<T>> BindAsync(HttpContext context, ParameterInfo parameter)
     {
-        var value = await context.Request.ReadFromJsonAsync<T>();
+        T? value = await context.Request.ReadFromJsonAsync<T>();
         if (value is null)
         {
             throw new ArgumentException($"{parameter.Name} cannot be null.");
         }
-        var validator = context.RequestServices.GetRequiredService<IValidator<T>>();
-        var validationResult = await validator.ValidateAsync(value);
+        IValidator<T>? validator = context.RequestServices.GetRequiredService<IValidator<T>>();
+        ValidationResult? validationResult = await validator.ValidateAsync(value);
         return new Validated<T>(value, validationResult);
     }
 }

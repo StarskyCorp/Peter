@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +15,7 @@ public static class ValidationFilter
     public static EndpointFilterDelegate ValidationEndpointFilterFactory(EndpointFilterFactoryContext context,
         EndpointFilterDelegate next)
     {
-        var validationDescriptors =
+        IEnumerable<ValidationDescriptor>? validationDescriptors =
             GetValidationDescriptors(context.MethodInfo);
 
         return validationDescriptors.Any()
@@ -24,31 +25,33 @@ public static class ValidationFilter
 
     private static IEnumerable<ValidationDescriptor> GetValidationDescriptors(MethodBase methodInfo)
     {
-        var parameters = methodInfo.GetParameters();
+        ParameterInfo[]? parameters = methodInfo.GetParameters();
         for (var i = 0; i < parameters.Length; i++)
         {
-            var parameter = parameters[i];
+            ParameterInfo? parameter = parameters[i];
             if (parameter.GetCustomAttribute<ValidateAttribute>() is null)
             {
                 continue;
             }
 
-            var validatorType = typeof(IValidator<>).MakeGenericType(parameter.ParameterType);
+            Type? validatorType = typeof(IValidator<>).MakeGenericType(parameter.ParameterType);
             yield return new ValidationDescriptor
-            { Name = parameter.Name!, Index = i, Type = parameter.ParameterType, ValidatorType = validatorType };
+            {
+                Name = parameter.Name!, Index = i, Type = parameter.ParameterType, ValidatorType = validatorType
+            };
         }
     }
 
     private static async ValueTask<object?> Validate(IEnumerable<ValidationDescriptor> validationDescriptors,
         EndpointFilterInvocationContext invocationContext, EndpointFilterDelegate next)
     {
-        foreach (var descriptor in validationDescriptors)
+        foreach (ValidationDescriptor descriptor in validationDescriptors)
         {
-            var argument = invocationContext.Arguments[descriptor.Index];
+            var argument = invocationContext.Arguments[descriptor.Index]!;
             var validator =
-                invocationContext.HttpContext.RequestServices
-                    .GetRequiredService(descriptor.ValidatorType) as IValidator;
-            var validationResult = await validator.ValidateAsync(
+                (IValidator)invocationContext.HttpContext.RequestServices
+                    .GetRequiredService(descriptor.ValidatorType);
+            ValidationResult validationResult = await validator.ValidateAsync(
                 new ValidationContext<object>(argument)
             );
             if (!validationResult.IsValid)
