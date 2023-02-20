@@ -49,7 +49,7 @@ jobs:
     - name: Get version
       id: version
       run: |
-        $version = Get-Content -Path .\src\Peter.All\Peter.All.csproj | Where-Object { $_ -Like "*<Version>*" }
+        $version = Get-Content -Path .\Directory.Build.props | Where-Object { $_ -Like "*<Version>*" }
         if ($version) {
             $version = $version.Trim().Substring("<Version>".Length)
             $version = $version.Substring(0, $version.IndexOf("</Version>"))
