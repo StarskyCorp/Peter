@@ -13,13 +13,21 @@ public static class ResultExtensions
 
         return result.Status switch
         {
-            ResultStatus.Success => Results.Ok(result.Value),
+            ResultStatus.Success => ManageOk(result, options),
             ResultStatus.Failure => ManageFailure(result, options),
             ResultStatus.NotExists => Results.NotFound(result.Value),
             ResultStatus.Invalid => ManageInvalid(result, options),
             _ => throw new ArgumentOutOfRangeException(nameof(result))
         };
     }
+
+    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options) =>
+        options.Ok switch
+        {
+            Ok.Ok => Results.Ok(result.Value),
+            Ok.Created => Results.CreatedAtRoute(options.RouteName, options.RouteValues, result.Value),
+            _ => throw new ArgumentOutOfRangeException(nameof(options.Ok))
+        };
 
     public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
