@@ -9,7 +9,6 @@ public static class AuthenticationEndpoints
                 (string who, HttpContext context) =>
                     $"Hello {who}! These are your claims: {string.Join(",", context.User.Claims)}")
             .RequireAuthorization();
-
         return app;
     }
 }

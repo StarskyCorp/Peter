@@ -1,15 +1,15 @@
-﻿//using Microsoft.Extensions.Logging;
-//using Xunit.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 
-//namespace Peter.MinimalApi.Testing;
+namespace Peter.MinimalApi.Testing;
 
-//public class XUnitLoggerProvider : ILoggerProvider
-//{
-//    private readonly ITestOutputHelper _testOutputHelper;
+public class XUnitLoggerProvider : ILoggerProvider
+{
+    private readonly ITestOutputHelper _testOutputHelper;
 
-//    public XUnitLoggerProvider(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+    public XUnitLoggerProvider(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
-//    public ILogger CreateLogger(string categoryName) => new XUnitLogger(_testOutputHelper, categoryName);
+    public ILogger CreateLogger(string categoryName) => new XUnitLogger(_testOutputHelper, categoryName);
 
-//    public void Dispose() {}
-//}
+    public void Dispose() { }
+}

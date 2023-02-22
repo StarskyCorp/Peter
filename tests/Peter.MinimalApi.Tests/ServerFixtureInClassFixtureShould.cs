@@ -4,6 +4,7 @@ using Api.Tests;
 using FluentAssertions;
 using Peter.MinimalApi.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Peter.MinimalApi.Tests;
 
@@ -11,7 +12,11 @@ public class ServerFixtureInClassFixtureShould : IClassFixture<ServerFixture<IAp
 {
     private readonly ServerFixture<IApiMarker> _fixture;
 
-    public ServerFixtureInClassFixtureShould(ServerFixture<IApiMarker> fixture) => _fixture = fixture;
+    public ServerFixtureInClassFixtureShould(ServerFixture<IApiMarker> fixture, ITestOutputHelper output)
+    {
+        _fixture = fixture;
+        fixture.RegisterLoggerProvider(output);
+    }
 
     [Fact]
     public async Task greet()
@@ -34,5 +39,12 @@ public class ServerFixtureInClassFixtureShould : IClassFixture<ServerFixture<IAp
         var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/authenticated");
         response.Should().StartWith("Hello Peter!");
         response.Should().EndWith(string.Join<Claim>(",", claims));
+    }
+
+    [Fact]
+    public async Task show_api_logs()
+    {
+        var response = await _fixture.Client().GetStringAsync("/users/log");
+        response.Should().StartWith("Users");
     }
 }
