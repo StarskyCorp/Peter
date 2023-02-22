@@ -29,15 +29,26 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("\"Peter\"");
     }
-    
+
     [Fact]
-    public async Task return_created_at()
+    public async Task return_created_at_with_complete_route_info()
     {
         var response = await _client.PostAsJsonAsync("created_at", "foo");
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
 
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
         var baseAddress = _app.Server.BaseAddress.ToString().TrimEnd('/');
         response.Headers.Location.Should().Be($"{baseAddress}/foo/1");
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("\"Peter\"");
+    }
+
+    [Fact]
+    public async Task return_created()
+    {
+        var response = await _client.PostAsJsonAsync("created", "foo");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        response.Headers.Location.Should().Be("/anyUrl");
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("\"Peter\"");
     }

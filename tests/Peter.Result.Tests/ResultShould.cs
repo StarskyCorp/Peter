@@ -26,6 +26,43 @@ public class ResultShould
     }
 
     [Fact]
+    public void create_success_result_of_type_created_with_complete_route_info()
+    {
+        var route = _fixture.Create<string>();
+        var routeValues = _fixture.Create<int>();
+        var value = _fixture.Create<object>();
+
+        var result = Result<object>.CreateSuccessCreatedAt(value, route, routeValues);
+
+        result.Success.Should().BeTrue();
+        result.Value.Should().Be(value);
+        result.Status.Should().Be(ResultStatus.Created);
+        var routeInfo = new
+        {
+            Route = route,
+            RouteValues = routeValues
+        };
+        result.RouteInfo.Should().BeEquivalentTo(routeInfo);
+    }
+
+    [Fact]
+    public void create_success_result_of_type_created()
+    {
+        var url = "https://valid.url.com/url";
+
+        var result = Result<object>.CreateSuccessCreated(_fixture.Create<object>(), url);
+
+        result.Success.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Status.Should().Be(ResultStatus.Created);
+        var routeInfo = new
+        {
+            Route = url,
+        };
+        result.RouteInfo.Should().BeEquivalentTo(routeInfo);
+    }
+
+    [Fact]
     public void create_failed_result()
     {
         var result = Result<object>.CreateFailure(_fixture.Create<IEnumerable<string>>());

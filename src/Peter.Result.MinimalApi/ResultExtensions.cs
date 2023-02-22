@@ -13,7 +13,8 @@ public static class ResultExtensions
 
         return result.Status switch
         {
-            ResultStatus.Success => ManageOk(result, options),
+            ResultStatus.Success => ManageOk(result),
+            ResultStatus.Created => ManageCreated(result),
             ResultStatus.Failure => ManageFailure(result, options),
             ResultStatus.NotExists => Results.NotFound(result.Value),
             ResultStatus.Invalid => ManageInvalid(result, options),
@@ -21,13 +22,16 @@ public static class ResultExtensions
         };
     }
 
-    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options) =>
-        options.Ok switch
+    private static IResult ManageOk<T>(Result<T> result) => Results.Ok(result.Value);
+
+    private static IResult ManageCreated<T>(Result<T> result)
+    {
+        if (result.RouteInfo!.RouteValues is null)
         {
-            Ok.Ok => Results.Ok(result.Value),
-            Ok.Created => Results.CreatedAtRoute(options.RouteName, options.RouteValues, result.Value),
-            _ => throw new ArgumentOutOfRangeException(nameof(options.Ok))
-        };
+            return Results.Created(result.RouteInfo.Route!, result.Value);
+        }
+        return Results.CreatedAtRoute(result.RouteInfo.Route, result.RouteInfo.RouteValues, result.Value);
+    }
 
     public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 

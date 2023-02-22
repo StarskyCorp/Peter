@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Peter.Result;
-using Peter.Result.MinimalApi;
 
 namespace Api.Tests.Features.Validation;
 
@@ -20,11 +19,14 @@ public static class ResultEndpoints
 
         app.MapPost("/created_at", ([FromBody] string payload) =>
         {
-            Result<string> result = "Peter";
-            return result.ToMinimalApi(options =>
-            {
-                options.CreatedAt("GetFoo", new { id = 1 });
-            });
+            var result = Result<string>.CreateSuccessCreatedAt("Peter", "GetFoo", new { id = 1 });
+            return result.ToMinimalApi();
+        });
+
+        app.MapPost("/created", ([FromBody] string payload) =>
+        {
+            var result = Result<string>.CreateSuccessCreated("Peter", "/anyUrl");
+            return result.ToMinimalApi();
         });
 
         app.MapGet("/failed_using_problem_details", () =>
