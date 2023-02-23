@@ -3,7 +3,6 @@
 public enum ResultStatus
 {
     Success,
-    Created,
     Failure,
     NotExists,
     Invalid

@@ -4,10 +4,9 @@ public class Result<T>
 {
     public T? Value { get; }
     public ResultStatus Status { private init; get; }
-    public bool Success => Status is ResultStatus.Success or ResultStatus.Created;
+    public bool Success => Status is ResultStatus.Success;
     public IEnumerable<string>? Errors { get; private init; }
     public IEnumerable<ValidationError>? ValidationErrors { get; private init; }
-    public RouteInfo? RouteInfo { get; private init; }
 
     private Result(T? value)
     {
@@ -16,28 +15,6 @@ public class Result<T>
     }
 
     public static Result<T> CreateSuccess(T? value = default) => new(value);
-
-    public static Result<T> CreateSuccessCreated(T? value, string url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
-        {
-            throw new ArgumentException(nameof(url));
-        }
-        return new(value) { Status = ResultStatus.Created, RouteInfo = new RouteInfo { Route = url } };
-    }
-
-    public static Result<T> CreateSuccessCreatedAt(T? value, string route, object? routeValues = default)
-    {
-        if (string.IsNullOrWhiteSpace(route))
-        {
-            throw new ArgumentException(nameof(route));
-        }
-        return new(value)
-        {
-            Status = ResultStatus.Created,
-            RouteInfo = new() { Route = route, RouteValues = routeValues }
-        };
-    }
 
     public static Result<T> CreateFailure(IEnumerable<string> errors, T? value = default) =>
         new(value) { Status = ResultStatus.Failure, Errors = errors };

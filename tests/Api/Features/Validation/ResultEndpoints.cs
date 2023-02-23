@@ -19,14 +19,14 @@ public static class ResultEndpoints
 
         app.MapPost("/created_at", ([FromBody] string payload) =>
         {
-            var result = Result<string>.CreateSuccessCreatedAt("Peter", "GetFoo", new { id = 1 });
-            return result.ToMinimalApi();
+            Result<string> result = "Peter";
+            return result.ToMinimalApi(options => options.WithCreatedAtBehaviour("GetFoo", new { id = 1 }));
         });
 
         app.MapPost("/created", ([FromBody] string payload) =>
         {
-            var result = Result<string>.CreateSuccessCreated("Peter", "/anyUrl");
-            return result.ToMinimalApi();
+            Result<string> result = "Peter";
+            return result.ToMinimalApi(options => options.WithCreatedBehaviour("/anyUrl"));
         });
 
         app.MapGet("/failed_using_problem_details", () =>
@@ -48,6 +48,12 @@ public static class ResultEndpoints
         {
             var result = Result<object>.CreateNotExists();
             return result.ToMinimalApi();
+        });
+
+        app.MapGet("/no_content", () =>
+        {
+            var result = Result<object>.CreateNotExists();
+            return result.ToMinimalApi(options => options.WithNoContentBehaviour());
         });
 
         app.MapGet("/not_exists_with_value", () =>

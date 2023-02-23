@@ -72,18 +72,25 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task return_not_exists()
+    public async Task return_not_found()
     {
         HttpResponseMessage response = await _client.GetAsync("not_exists");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task return_not_exists_with_value()
+    public async Task return_not_found_with_value()
     {
         HttpResponseMessage response = await _client.GetAsync("not_exists_with_value");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         (await response.Content.ReadAsStringAsync()).Should().Be("\"Peter\"");
+    }
+
+    [Fact]
+    public async Task return_no_content()
+    {
+        HttpResponseMessage response = await _client.GetAsync("no_content");
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     [Fact]

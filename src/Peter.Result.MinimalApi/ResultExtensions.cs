@@ -13,27 +13,42 @@ public static class ResultExtensions
 
         return result.Status switch
         {
-            ResultStatus.Success => ManageOk(result),
-            ResultStatus.Created => ManageCreated(result),
+            ResultStatus.Success => ManageOk(result, options),
             ResultStatus.Failure => ManageFailure(result, options),
-            ResultStatus.NotExists => Results.NotFound(result.Value),
+            ResultStatus.NotExists => ManageNotExists(result, options),
             ResultStatus.Invalid => ManageInvalid(result, options),
             _ => throw new ArgumentOutOfRangeException(nameof(result))
         };
     }
 
-    private static IResult ManageOk<T>(Result<T> result) => Results.Ok(result.Value);
+    public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
-    private static IResult ManageCreated<T>(Result<T> result)
+    private static IResult ManageNotExists<T>(Result<T> result, ToMinimalApiOptions options)
+        => options.NoContentBehaviour is NoContentBehaviourType.NotFound ? Results.NotFound(result.Value) : Results.NoContent();
+
+    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options)
     {
-        if (result.RouteInfo!.RouteValues is null)
+        if (options.OkBehaviour is OkBehaviourType.Created or OkBehaviourType.CreatedAt)
         {
-            return Results.Created(result.RouteInfo.Route!, result.Value);
+            return ManageCreated<T>(result, options);
         }
-        return Results.CreatedAtRoute(result.RouteInfo.Route, result.RouteInfo.RouteValues, result.Value);
+        return Results.Ok(result.Value);
     }
 
-    public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
+    private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(options.Route))
+        {
+            throw new ArgumentNullException(nameof(options.Route));
+        }
+
+        if (options.OkBehaviour == OkBehaviourType.Created)
+        {
+            return Results.Created(options.Route, result.Value);
+        }
+
+        return Results.CreatedAtRoute(options.Route, options.RouteValues, result.Value);
+    }
 
     private static IResult ManageFailure<T>(Result<T> result, ToMinimalApiOptions options)
     {
