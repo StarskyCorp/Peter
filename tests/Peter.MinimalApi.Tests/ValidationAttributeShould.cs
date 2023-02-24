@@ -9,16 +9,21 @@ using Xunit;
 
 namespace Peter.MinimalApi.Tests;
 
-public class ValidationFilterShould : IClassFixture<WebApplicationFactory<IApiMarker>>
+public class ValidationAttributeShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {
     private readonly HttpClient _client;
 
-    public ValidationFilterShould(WebApplicationFactory<IApiMarker> factory) => _client = factory.CreateDefaultClient();
+    public ValidationAttributeShould(WebApplicationFactory<IApiMarker> factory) => _client = factory.CreateDefaultClient();
 
     [Fact]
-    public async Task validate_with_fail_when_data_is_not_valid()
+    public async Task validate_successfully_when_data_is_valid() =>
+        (await _client.PostAsJsonAsync("validate_using_validate_attribute", new Product { Id = 1, Name = "A product" }))
+        .StatusCode.Should().Be(HttpStatusCode.OK);
+
+    [Fact]
+    public async Task fail_validation_when_data_is_invalid()
     {
-        HttpResponseMessage? response = await _client.PostAsJsonAsync("validate_using_validate_attribute", new Product { Id = 0, Name = null });
+        HttpResponseMessage response = await _client.PostAsJsonAsync("validate_using_validate_attribute", new Product { Id = 0, Name = null });
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         HttpValidationProblemDetails? content = (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
@@ -28,12 +33,7 @@ public class ValidationFilterShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task validate_successfully_when_data_is_valid() =>
-        (await _client.PostAsJsonAsync("validate_using_validate_attribute", new Product { Id = 1, Name = "A product" }))
-        .StatusCode.Should().Be(HttpStatusCode.OK);
-
-    [Fact]
-    public async Task fail_when_there_is_not_a_custom_validator_registered()
+    public async Task fail_validation_when_there_is_not_a_custom_validator_registered()
     {
         HttpResponseMessage response = await _client.PostAsJsonAsync(
             "fail_validation_using_validate_attribute_when_there_is_not_a_custom_validator_registered",
