@@ -1,3 +1,5 @@
+$commandPath = Split-Path -Parent $PSCommandPath
+Set-Location $commandPath
 $path = "C:\PeterLocalPackages"
 if (-not (Test-Path $path)) {
     New-Item -Path $path -ItemType Directory
