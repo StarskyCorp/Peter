@@ -9,15 +9,21 @@ using Xunit;
 
 namespace Peter.MinimalApi.Tests;
 
-public class ValidatedAttributeShould : IClassFixture<WebApplicationFactory<IApiMarker>>
+public class ValidatedGenericTypeShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {
     private readonly HttpClient _client;
 
-    public ValidatedAttributeShould(WebApplicationFactory<IApiMarker> factory) =>
+    public ValidatedGenericTypeShould(WebApplicationFactory<IApiMarker> factory) =>
         _client = factory.CreateDefaultClient();
 
     [Fact]
-    public async Task validate_with_fail_when_data_is_not_valid()
+    public async Task validate_successfully_when_data_is_valid() =>
+        (await _client.PostAsJsonAsync("validate_using_validated_generic_type",
+            new Product { Id = 1, Name = "A product" }))
+        .StatusCode.Should().Be(HttpStatusCode.OK);
+
+    [Fact]
+    public async Task fail_validation_when_data_is_invalid()
     {
         HttpResponseMessage response = await _client.PostAsJsonAsync("validate_using_validated_generic_type",
             new Product { Id = 0, Name = null });
@@ -31,13 +37,7 @@ public class ValidatedAttributeShould : IClassFixture<WebApplicationFactory<IApi
     }
 
     [Fact]
-    public async Task validate_successfully_when_data_is_valid() =>
-        (await _client.PostAsJsonAsync("validate_using_validated_generic_type",
-            new Product { Id = 1, Name = "A product" }))
-        .StatusCode.Should().Be(HttpStatusCode.OK);
-
-    [Fact]
-    public async Task fail_when_value_is_null()
+    public async Task fail_validation_when_data_is_missing()
     {
         HttpResponseMessage response =
             await _client.PostAsJsonAsync<Product>("validate_using_validated_generic_type", null!);
@@ -48,7 +48,7 @@ public class ValidatedAttributeShould : IClassFixture<WebApplicationFactory<IApi
     }
 
     [Fact]
-    public async Task fail_when_there_is_not_a_custom_validator_registered()
+    public async Task fail_validation_when_there_is_not_a_custom_validator_registered()
     {
         HttpResponseMessage response = await _client.PostAsJsonAsync(
             "fail_validation_using_validated_generic_type_when_there_is_not_a_custom_validator_registered",
