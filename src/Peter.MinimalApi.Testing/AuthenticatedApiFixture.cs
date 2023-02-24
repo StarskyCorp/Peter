@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Peter.MinimalApi.Testing;
 
-public class ServerFixture<T> : WebApplicationFactory<T> where T : class
+public class AuthenticatedApiFixture<T> : WebApplicationFactory<T> where T : class
 {
     public HttpClient Client() => CreateDefaultClient();
     public HttpClient AuthenticatedClient(IEnumerable<Claim> claims) => CreateDefaultClient().WithIdentity(claims);
@@ -38,7 +38,7 @@ public class ServerFixture<T> : WebApplicationFactory<T> where T : class
     }
 }
 
-public class ServerFixture<T, Q> : ServerFixture<T> where T : class where Q : IServerFixtureInitializer, new()
+public class AuthenticatedApiFixture<T, Q> : AuthenticatedApiFixture<T> where T : class where Q : IAuthenticatedApiFixtureInitializer, new()
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

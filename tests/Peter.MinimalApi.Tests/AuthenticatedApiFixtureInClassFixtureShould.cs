@@ -4,20 +4,19 @@ using Api.Tests;
 using FluentAssertions;
 using Peter.MinimalApi.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Peter.MinimalApi.Tests;
 
-[CollectionDefinition(nameof(DatabaseCollectionFixture))]
-public class DatabaseCollectionFixture : ICollectionFixture<ServerFixture<IApiMarker>>
+public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<AuthenticatedApiFixture<IApiMarker>>
 {
-}
+    private readonly AuthenticatedApiFixture<IApiMarker> _fixture;
 
-[Collection(nameof(DatabaseCollectionFixture))]
-public class ServerFixtureInCollectionFixtureShould
-{
-    private readonly ServerFixture<IApiMarker> _fixture;
-
-    public ServerFixtureInCollectionFixtureShould(ServerFixture<IApiMarker> fixture) => _fixture = fixture;
+    public AuthenticatedApiFixtureInClassFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture, ITestOutputHelper output)
+    {
+        _fixture = fixture;
+        fixture.RegisterLoggerProvider(output);
+    }
 
     [Fact]
     public async Task greet()
@@ -29,7 +28,7 @@ public class ServerFixtureInCollectionFixtureShould
     [Fact]
     public async Task greet_non_authenticated()
     {
-        HttpResponseMessage response = await _fixture.Client().GetAsync("/Peter/authenticated");
+        HttpResponseMessage? response = await _fixture.Client().GetAsync("/Peter/authenticated");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -43,9 +42,9 @@ public class ServerFixtureInCollectionFixtureShould
     }
 
     [Fact]
-    public async Task invoke_initialize_method()
+    public async Task show_api_logs()
     {
-        var response = await _fixture.Client().GetStringAsync("/Peter");
-        response.Should().Be("Hello Peter!");
+        var response = await _fixture.Client().GetStringAsync("/users/log");
+        response.Should().StartWith("Users");
     }
 }

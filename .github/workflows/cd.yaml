@@ -49,10 +49,10 @@ jobs:
     - name: Get version
       id: version
       run: |
-        $version = Get-Content -Path .\Directory.Build.props | Where-Object { $_ -Like "*<Version>*" }
+        $version = Get-Content -Path .\Directory.Build.props | Where-Object { $_ -Like "*<VersionPrefix>*" }
         if ($version) {
             $version = $version.Trim().Substring("<Version>".Length)
-            $version = $version.Substring(0, $version.IndexOf("</Version>"))
+            $version = $version.Substring(0, $version.IndexOf("</VersionPrefix>"))
         }
         else {
             $version = "1.0.0"

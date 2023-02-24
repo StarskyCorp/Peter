@@ -1,6 +1,6 @@
 ﻿namespace Peter.MinimalApi.Testing;
 
-public interface IServerFixtureInitializer
+public interface IAuthenticatedApiFixtureInitializer
 {
     void Initialize(IServiceProvider services);
 }
