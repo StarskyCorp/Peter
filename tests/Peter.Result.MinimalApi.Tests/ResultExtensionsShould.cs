@@ -54,6 +54,29 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
+    public async Task return_accepted_at_with_complete_route_info()
+    {
+        var response = await _client.PostAsJsonAsync("accepted_at", "foo");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        var baseAddress = _app.Server.BaseAddress.ToString().TrimEnd('/');
+        response.Headers.Location.Should().Be($"{baseAddress}/foo/2");
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("\"Peter\"");
+    }
+
+    [Fact]
+    public async Task return_accepted()
+    {
+        var response = await _client.PostAsJsonAsync("accepted", "foo");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.Headers.Location.Should().Be("/anyUrl");
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("\"Peter\"");
+    }
+
+    [Fact]
     public async Task return_failed_using_problem_details()
     {
         HttpResponseMessage response = await _client.GetAsync("failed_using_problem_details");

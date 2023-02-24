@@ -29,6 +29,18 @@ public static class ResultEndpoints
             return result.ToMinimalApi(options => options.WithCreatedBehaviour("/anyUrl"));
         });
 
+        app.MapPost("/accepted_at", ([FromBody] string payload) =>
+        {
+            Result<string> result = "Peter";
+            return result.ToMinimalApi(options => options.WithAcceptedAtBehaviour("GetFoo", new { id = 2 }));
+        });
+
+        app.MapPost("/accepted", ([FromBody] string payload) =>
+        {
+            Result<string> result = "Peter";
+            return result.ToMinimalApi(options => options.WithAcceptedBehaviour("/anyUrl"));
+        });
+
         app.MapGet("/failed_using_problem_details", () =>
         {
             var result = Result<object>.CreateFailure(new[] { "A failure" });

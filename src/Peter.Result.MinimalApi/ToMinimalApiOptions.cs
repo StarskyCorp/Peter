@@ -23,14 +23,30 @@ public class ToMinimalApiOptions
         OkBehaviour = OkBehaviourType.CreatedAt;
     }
 
+    public void WithAcceptedBehaviour(string route)
+    {
+        Route = route;
+        OkBehaviour = OkBehaviourType.Accepted;
+    }
+
+    public void WithAcceptedAtBehaviour(string routeName, object routeValues = null)
+    {
+        Route = routeName;
+        RouteValues = routeValues;
+        OkBehaviour = OkBehaviourType.AcceptedAt;
+    }
+
     public void WithNoContentBehaviour() => NoContentBehaviour = NoContentBehaviourType.NoContent;
     public void WithNotFoundBehaviour() => NoContentBehaviour = NoContentBehaviourType.NotFound;
+
 }
 public enum OkBehaviourType
 {
     Ok,
     Created,
-    CreatedAt
+    CreatedAt,
+    Accepted,
+    AcceptedAt
 }
 
 public enum NoContentBehaviourType

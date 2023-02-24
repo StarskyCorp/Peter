@@ -30,9 +30,29 @@ public static class ResultExtensions
     {
         if (options.OkBehaviour is OkBehaviourType.Created or OkBehaviourType.CreatedAt)
         {
-            return ManageCreated<T>(result, options);
+            return ManageCreated(result, options);
+        }
+
+        if (options.OkBehaviour is OkBehaviourType.Accepted or OkBehaviourType.AcceptedAt)
+        {
+            return ManageAccepted(result, options);
         }
         return Results.Ok(result.Value);
+    }
+
+    private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(options.Route))
+        {
+            throw new ArgumentNullException(nameof(options.Route));
+        }
+
+        if (options.OkBehaviour == OkBehaviourType.Accepted)
+        {
+            return Results.Accepted(options.Route, result.Value);
+        }
+
+        return Results.AcceptedAtRoute(options.Route, options.RouteValues, result.Value);
     }
 
     private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options)
