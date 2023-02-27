@@ -11,12 +11,15 @@ public static class ResultExtensions
         var options = new ToMinimalApiOptions();
         configure(options);
 
-        return result.Status switch
+        return result.GetType() switch
         {
-            ResultStatus.Success => ManageOk(result, options),
-            ResultStatus.Failure => ManageFailure(result, options),
-            ResultStatus.NotExists => ManageNotExists(result, options),
-            ResultStatus.Invalid => ManageInvalid(result, options),
+            var type when type == typeof(NotExistsResult<T>) => ManageNotExists(result, options),
+            var type when type == typeof(InvalidResult<T>) => ManageInvalid((InvalidResult<T>)result, options),
+            var type when type == typeof(Result<T>) => result.Success switch
+            {
+                true => ManageOk(result, options),
+                false => ManageFailure(result, options)
+            },
             _ => throw new ArgumentOutOfRangeException(nameof(result))
         };
     }
@@ -24,21 +27,17 @@ public static class ResultExtensions
     public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
     private static IResult ManageNotExists<T>(Result<T> result, ToMinimalApiOptions options)
-        => options.NoContentBehaviour is NoContentBehaviourType.NotFound ? Results.NotFound(result.Value) : Results.NoContent();
+        => options.NoContentBehaviour is NoContentBehaviourType.NotFound
+            ? Results.NotFound(result.Value)
+            : Results.NoContent();
 
-    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options)
-    {
-        if (options.OkBehaviour is OkBehaviourType.Created or OkBehaviourType.CreatedAt)
+    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options) =>
+        options.OkBehaviour switch
         {
-            return ManageCreated(result, options);
-        }
-
-        if (options.OkBehaviour is OkBehaviourType.Accepted or OkBehaviourType.AcceptedAt)
-        {
-            return ManageAccepted(result, options);
-        }
-        return Results.Ok(result.Value);
-    }
+            OkBehaviourType.Created or OkBehaviourType.CreatedAt => ManageCreated(result, options),
+            OkBehaviourType.Accepted or OkBehaviourType.AcceptedAt => ManageAccepted(result, options),
+            _ => Results.Ok(result.Value)
+        };
 
     private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options)
     {
@@ -82,11 +81,12 @@ public static class ResultExtensions
         return Results.StatusCode(500);
     }
 
-    private static IResult ManageInvalid<T>(Result<T> result, ToMinimalApiOptions options) => options.UseProblemDetails
-        ? Results.ValidationProblem(result.ToProblemDetails())
-        : Results.BadRequest(result.ValidationErrors);
+    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
+        options.UseProblemDetails
+            ? Results.ValidationProblem(result.ToProblemDetails())
+            : Results.BadRequest(result.ValidationErrors);
 
-    private static IDictionary<string, string[]> ToProblemDetails<T>(this Result<T> result)
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result)
     {
         var details = result.ValidationErrors?
             .GroupBy(x => x.Field)

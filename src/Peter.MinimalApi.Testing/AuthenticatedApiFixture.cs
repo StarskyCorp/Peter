@@ -38,7 +38,8 @@ public class AuthenticatedApiFixture<T> : WebApplicationFactory<T> where T : cla
     }
 }
 
-public class AuthenticatedApiFixture<T, Q> : AuthenticatedApiFixture<T> where T : class where Q : IAuthenticatedApiFixtureInitializer, new()
+public class AuthenticatedApiFixture<T, Q> : AuthenticatedApiFixture<T>
+    where T : class where Q : IAuthenticatedApiFixtureInitializer, new()
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -50,4 +51,9 @@ public class AuthenticatedApiFixture<T, Q> : AuthenticatedApiFixture<T> where T 
             initializer.Initialize(scope.ServiceProvider);
         });
     }
+}
+
+public interface IAuthenticatedApiFixtureInitializer
+{
+    void Initialize(IServiceProvider services);
 }

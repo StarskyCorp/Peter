@@ -9,14 +9,14 @@ public class ToMinimalApiOptions
 
     public bool UseProblemDetails { get; set; } = true;
 
-    public void WithCreatedBehaviour(string route, object routeValues = null)
+    public void WithCreatedBehaviour(string route, object? routeValues = null)
     {
         Route = route;
         RouteValues = routeValues;
         OkBehaviour = OkBehaviourType.Created;
     }
 
-    public void WithCreatedAtBehaviour(string routeName, object routeValues = null)
+    public void WithCreatedAtBehaviour(string routeName, object? routeValues = null)
     {
         Route = routeName;
         RouteValues = routeValues;
@@ -29,7 +29,7 @@ public class ToMinimalApiOptions
         OkBehaviour = OkBehaviourType.Accepted;
     }
 
-    public void WithAcceptedAtBehaviour(string routeName, object routeValues = null)
+    public void WithAcceptedAtBehaviour(string routeName, object? routeValues = null)
     {
         Route = routeName;
         RouteValues = routeValues;
@@ -38,8 +38,8 @@ public class ToMinimalApiOptions
 
     public void WithNoContentBehaviour() => NoContentBehaviour = NoContentBehaviourType.NoContent;
     public void WithNotFoundBehaviour() => NoContentBehaviour = NoContentBehaviourType.NotFound;
-
 }
+
 public enum OkBehaviourType
 {
     Ok,

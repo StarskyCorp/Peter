@@ -3,27 +3,27 @@
 public class Result<T>
 {
     public T? Value { get; }
-    public ResultStatus Status { private init; get; }
-    public bool Success => Status is ResultStatus.Success;
-    public IEnumerable<string>? Errors { get; private init; }
-    public IEnumerable<ValidationError>? ValidationErrors { get; private init; }
+    public bool Success { get; }
 
-    private Result(T? value)
+    public IEnumerable<string>? Errors { get; }
+
+    protected Result(T? value, bool success)
     {
         Value = value;
-        Status = ResultStatus.Success;
+        Success = success;
     }
 
-    public static Result<T> CreateSuccess(T? value = default) => new(value);
+    protected Result(T? value, bool success, IEnumerable<string> errors)
+    {
+        Value = value;
+        Success = success;
+        Errors = errors;
+    }
+
+    public static Result<T> CreateSuccess(T? value = default) => new(value, true);
 
     public static Result<T> CreateFailure(IEnumerable<string> errors, T? value = default) =>
-        new(value) { Status = ResultStatus.Failure, Errors = errors };
-
-    public static Result<T> CreateNotExists(T? value = default) =>
-        new(value) { Status = ResultStatus.NotExists };
-
-    public static Result<T> CreateInvalid(IEnumerable<ValidationError> validationErrors, T? value = default) =>
-        new(value) { Status = ResultStatus.Invalid, ValidationErrors = validationErrors };
+        new(value, false, errors);
 
     public static implicit operator bool(Result<T> result) => result.Success;
 
