@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Images;
 using Xunit;
 
 public class AzuriteFixture : IAsyncLifetime
@@ -25,6 +26,7 @@ public class AzuriteFixture : IAsyncLifetime
         _azurite = new ContainerBuilder()
             .WithName(_accountName)
             .WithImage("mcr.microsoft.com/azure-storage/azurite")
+            .WithImagePullPolicy(PullPolicy.Always)
             .WithPortBinding(blobEndpointPort, assignRandomHostPort: true)
             .WithPortBinding(10001, assignRandomHostPort: true)
             .WithPortBinding(10002, assignRandomHostPort: true)
