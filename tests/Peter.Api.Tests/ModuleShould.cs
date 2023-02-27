@@ -3,7 +3,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace Peter.MinimalApi.Tests;
+namespace Peter.Api.Tests;
 
 public class ModuleShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {

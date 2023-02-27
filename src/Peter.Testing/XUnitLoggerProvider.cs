@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Peter.MinimalApi.Testing;
+namespace Peter.Testing;
 
 public class XUnitLoggerProvider : ILoggerProvider
 {

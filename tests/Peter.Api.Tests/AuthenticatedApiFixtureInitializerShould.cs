@@ -1,10 +1,10 @@
 ﻿using Api.Tests;
 using FluentAssertions;
 using Moq;
-using Peter.MinimalApi.Testing;
+using Peter.Testing;
 using Xunit;
 
-namespace Peter.MinimalApi.Tests;
+namespace Peter.Api.Tests;
 
 public class AuthenticatedApiFixtureInitializer : IAuthenticatedApiFixtureInitializer
 {

@@ -2,22 +2,21 @@
 using System.Security.Claims;
 using Api.Tests;
 using FluentAssertions;
-using Peter.MinimalApi.Testing;
+using Peter.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace Peter.MinimalApi.Tests;
+namespace Peter.Api.Tests;
 
-[CollectionDefinition(nameof(DatabaseCollectionFixture))]
-public class DatabaseCollectionFixture : ICollectionFixture<AuthenticatedApiFixture<IApiMarker>>
-{
-}
-
-[Collection(nameof(DatabaseCollectionFixture))]
-public class AuthenticatedApiFixtureInCollectionFixtureShould
+public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<AuthenticatedApiFixture<IApiMarker>>
 {
     private readonly AuthenticatedApiFixture<IApiMarker> _fixture;
 
-    public AuthenticatedApiFixtureInCollectionFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture) => _fixture = fixture;
+    public AuthenticatedApiFixtureInClassFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture, ITestOutputHelper output)
+    {
+        _fixture = fixture;
+        fixture.RegisterLoggerProvider(output);
+    }
 
     [Fact]
     public async Task greet()
@@ -29,7 +28,7 @@ public class AuthenticatedApiFixtureInCollectionFixtureShould
     [Fact]
     public async Task greet_non_authenticated()
     {
-        HttpResponseMessage response = await _fixture.Client().GetAsync("/Peter/authenticated");
+        HttpResponseMessage? response = await _fixture.Client().GetAsync("/Peter/authenticated");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -43,9 +42,9 @@ public class AuthenticatedApiFixtureInCollectionFixtureShould
     }
 
     [Fact]
-    public async Task invoke_initialize_method()
+    public async Task show_api_logs()
     {
-        var response = await _fixture.Client().GetStringAsync("/Peter");
-        response.Should().Be("Hello Peter!");
+        var response = await _fixture.Client().GetStringAsync("/users/log");
+        response.Should().StartWith("Users");
     }
 }

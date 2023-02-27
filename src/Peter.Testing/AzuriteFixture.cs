@@ -4,6 +4,8 @@ using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
 using Xunit;
 
+namespace Peter.Testing;
+
 public class AzuriteFixture : IAsyncLifetime
 {
     private IContainer? _azurite;

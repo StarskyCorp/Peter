@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Peter.MinimalApi.Testing;
+namespace Peter.Testing;
 
 internal static class ClaimsSerializer
 {

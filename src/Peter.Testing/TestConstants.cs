@@ -1,4 +1,4 @@
-﻿namespace Peter.MinimalApi.Testing;
+﻿namespace Peter.Testing;
 
 public static class TestConstants
 {

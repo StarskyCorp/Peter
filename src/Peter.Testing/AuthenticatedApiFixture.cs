@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Peter.MinimalApi.Testing;
+namespace Peter.Testing;
 
 public class AuthenticatedApiFixture<T> : WebApplicationFactory<T> where T : class
 {

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Peter.MinimalApi.Testing;
+namespace Peter.Testing;
 
 public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
