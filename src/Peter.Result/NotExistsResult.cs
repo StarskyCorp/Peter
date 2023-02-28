@@ -1,11 +1,11 @@
 namespace Peter.Result;
 
-public class NotExistsResult<T> : Result<T>
+public sealed class NotExistsResult<T> : ResultBase<T>
 {
-    protected NotExistsResult(T? value) : base(value, false)
+    private NotExistsResult(T? value) : base(value, false)
     {
     }
 
-    public static NotExistsResult<T> CreateNotExists(T? value = default) =>
+    public static NotExistsResult<T> Create(T? value = default) =>
         new(value);
 }

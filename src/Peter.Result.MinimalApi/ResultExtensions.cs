@@ -6,7 +6,7 @@ namespace Peter.Result;
 
 public static class ResultExtensions
 {
-    public static IResult ToMinimalApi<T>(this Result<T> result, Action<ToMinimalApiOptions> configure)
+    public static IResult ToMinimalApi<T>(this ResultBase<T> result, Action<ToMinimalApiOptions> configure)
     {
         var options = new ToMinimalApiOptions();
         configure(options);
@@ -24,14 +24,14 @@ public static class ResultExtensions
         };
     }
 
-    public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
+    public static IResult ToMinimalApi<T>(this ResultBase<T> result) => result.ToMinimalApi(_ => { });
 
-    private static IResult ManageNotExists<T>(Result<T> result, ToMinimalApiOptions options)
+    private static IResult ManageNotExists<T>(ResultBase<T> result, ToMinimalApiOptions options)
         => options.NoContentBehaviour is NoContentBehaviourType.NotFound
             ? Results.NotFound(result.Value)
             : Results.NoContent();
 
-    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options) =>
+    private static IResult ManageOk<T>(ResultBase<T> result, ToMinimalApiOptions options) =>
         options.OkBehaviour switch
         {
             OkBehaviourType.Created or OkBehaviourType.CreatedAt => ManageCreated(result, options),
@@ -39,7 +39,7 @@ public static class ResultExtensions
             _ => Results.Ok(result.Value)
         };
 
-    private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options)
+    private static IResult ManageAccepted<T>(ResultBase<T> result, ToMinimalApiOptions options)
     {
         if (string.IsNullOrWhiteSpace(options.Route))
         {
@@ -54,7 +54,7 @@ public static class ResultExtensions
         return Results.AcceptedAtRoute(options.Route, options.RouteValues, result.Value);
     }
 
-    private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options)
+    private static IResult ManageCreated<T>(ResultBase<T> result, ToMinimalApiOptions options)
     {
         if (string.IsNullOrWhiteSpace(options.Route))
         {
@@ -69,7 +69,7 @@ public static class ResultExtensions
         return Results.CreatedAtRoute(options.Route, options.RouteValues, result.Value);
     }
 
-    private static IResult ManageFailure<T>(Result<T> result, ToMinimalApiOptions options)
+    private static IResult ManageFailure<T>(ResultBase<T> result, ToMinimalApiOptions options)
     {
         if (options.UseProblemDetails && result.Errors != null)
         {

@@ -16,13 +16,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.0.103
+        dotnet-version: 7.0.x
 
     - name: Restore dependencies
       run: dotnet restore
-
-    # - name: Format
-    #   run: dotnet format --verify-no-changes --no-restore
 
     - name: Build
       run: dotnet build -c $BUILD_CONFIG --no-restore
@@ -31,7 +28,7 @@ jobs:
       run: dotnet test -c $BUILD_CONFIG --no-build --verbosity normal
 
     - name: Package
-      run: dotnet pack -c $BUILD_CONFIG Peter.sln -o packages
+      run: dotnet pack Peter.sln -c Debug --property:PackageOutputPath=packages
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2.2.2
