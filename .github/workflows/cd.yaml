@@ -38,10 +38,11 @@ jobs:
     - name: Publish if branch is main
       if: github.ref == 'refs/heads/main'
       run: |
-        dotnet nuget push $GITHUB_WORKSPACE/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
+        dotnet nuget push $env:PACKAGES_FOLDER/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
       shell: pwsh
       env:
         NUGET_API_KEY:  ${{ secrets.NUGET_API_KEY }}
+        PACKAGES_FOLDER:  ${{ github.workspace  }}
 
     - name: Get version
       id: version
