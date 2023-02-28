@@ -28,7 +28,7 @@ jobs:
       run: dotnet test -c $BUILD_CONFIG --no-build --verbosity normal
 
     - name: Package
-      run: dotnet pack Peter.sln -c Debug --property:PackageOutputPath=packages
+      run: dotnet pack Peter.sln -c Debug --property:PackageOutputPath=$GITHUB_WORKSPACE/packages
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2.2.2
@@ -38,7 +38,7 @@ jobs:
     - name: Publish if branch is main
       if: github.ref == 'refs/heads/main'
       run: |
-        dotnet nuget push .\packages\*.nupkg --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
+        dotnet nuget push $GITHUB_WORKSPACE/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $env:NUGET_API_KEY --skip-duplicate
       shell: pwsh
       env:
         NUGET_API_KEY:  ${{ secrets.NUGET_API_KEY }}
