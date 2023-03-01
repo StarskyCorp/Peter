@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Api.Tests;
+using Api;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +24,7 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_ok()
     {
-        HttpResponseMessage response = await _client.GetAsync("ok");
+        var response = await _client.GetAsync("ok");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("\"Peter\"");
@@ -56,7 +56,7 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_accepted_at_with_complete_route_info()
     {
-        HttpResponseMessage response = await _client.PostAsJsonAsync("accepted_at", "foo");
+        var response = await _client.PostAsJsonAsync("accepted_at", "foo");
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         var baseAddress = _app.Server.BaseAddress.ToString().TrimEnd('/');
@@ -68,7 +68,7 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_accepted()
     {
-        HttpResponseMessage response = await _client.PostAsJsonAsync("accepted", "foo");
+        var response = await _client.PostAsJsonAsync("accepted", "foo");
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         response.Headers.Location.Should().Be("/anyUrl");
@@ -79,8 +79,8 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_failed_using_problem_details()
     {
-        HttpResponseMessage response = await _client.GetAsync("failed_using_problem_details");
-        ProblemDetails details =
+        var response = await _client.GetAsync("failed_using_problem_details");
+        var details =
             JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync())!;
         details.Status.Should().Be(StatusCodes.Status500InternalServerError);
         details.Title.Should().Be("Error");
@@ -90,21 +90,21 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_failed_not_using_problem_details()
     {
-        HttpResponseMessage response = await _client.GetAsync("failed_not_using_problem_details");
+        var response = await _client.GetAsync("failed_not_using_problem_details");
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
     [Fact]
     public async Task return_not_found()
     {
-        HttpResponseMessage response = await _client.GetAsync("not_exists");
+        var response = await _client.GetAsync("not_exists");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task return_not_found_with_value()
     {
-        HttpResponseMessage response = await _client.GetAsync("not_exists_with_value");
+        var response = await _client.GetAsync("not_exists_with_value");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         (await response.Content.ReadAsStringAsync()).Should().Be("\"Peter\"");
     }
@@ -112,16 +112,16 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_no_content()
     {
-        HttpResponseMessage response = await _client.GetAsync("no_content");
+        var response = await _client.GetAsync("no_content");
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
     [Fact]
     public async Task return_invalid()
     {
-        HttpResponseMessage response = await _client.GetAsync("invalid");
+        var response = await _client.GetAsync("invalid");
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        HttpValidationProblemDetails content =
+        var content =
             (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
         content.Errors.Single().Should()
             .BeEquivalentTo(new KeyValuePair<string, string[]>("peter", new[] { "message" }));

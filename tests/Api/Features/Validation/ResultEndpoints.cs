@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Peter.Result;
 
-namespace Api.Tests.Features.Validation;
+namespace Api.Features.Validation;
 
 public static class ResultEndpoints
 {

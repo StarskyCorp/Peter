@@ -1,17 +1,18 @@
-﻿using Api.Tests;
-using Api.Tests.Features.Authentication;
-using Api.Tests.Features.Validation;
+﻿using Api;
+using Api.Features.Authentication;
+using Api.Features.Validation;
 using FluentValidation;
 using Peter.MinimalApi.Modules;
+using Peter.MinimalApi.Validation;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<IValidator<Product>, Product.ProductValidator>();
+builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -19,12 +20,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapModules<IApiMarker>();
+// The prefix can also be empty.
+// This can be useful for adding endpoint metadata or filters to a group of endpoints without changing the route pattern
+var all = app.MapGroup("")
+    .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
 
-app.AddAuthenticationEndpoints();
+all.MapModules<IApiMarker>();
 
-app.AddResultEndpoints();
+all.AddAuthenticationEndpoints();
 
-app.AddValidationEndpoints();
+all.AddResultEndpoints();
+
+all.AddValidationEndpoints();
 
 app.Run();

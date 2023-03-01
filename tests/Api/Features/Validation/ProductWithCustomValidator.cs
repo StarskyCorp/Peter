@@ -1,18 +1,18 @@
 ﻿using FluentValidation;
 
-namespace Api.Tests.Features.Validation;
+namespace Api.Features.Validation;
 
 public class Product
 {
     public int Id { get; set; }
     public string? Name { get; set; }
+}
 
-    public class ProductValidator : AbstractValidator<Product>
+public class ProductValidator : AbstractValidator<Product>
+{
+    public ProductValidator()
     {
-        public ProductValidator()
-        {
-            RuleFor(customer => customer.Id).GreaterThan(0);
-            RuleFor(customer => customer.Name).NotEmpty();
-        }
+        RuleFor(customer => customer.Id).GreaterThan(0);
+        RuleFor(customer => customer.Name).NotEmpty();
     }
 }

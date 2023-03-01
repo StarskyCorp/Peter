@@ -46,7 +46,7 @@ public class AuthenticatedApiFixture<T, Q> : AuthenticatedApiFixture<T>
         base.ConfigureWebHost(builder);
         builder.ConfigureTestServices(services =>
         {
-            using IServiceScope scope = services.BuildServiceProvider().CreateScope();
+            using var scope = services.BuildServiceProvider().CreateScope();
             var initializer = new Q();
             initializer.Initialize(scope.ServiceProvider);
         });
