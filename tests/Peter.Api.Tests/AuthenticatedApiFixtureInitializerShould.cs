@@ -1,4 +1,4 @@
-﻿using Api.Tests;
+﻿using Api;
 using FluentAssertions;
 using Moq;
 using Peter.Testing;

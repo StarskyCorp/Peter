@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Api.Tests;
-using Api.Tests.Features.Validation;
+using Api;
+using Api.Features.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -25,11 +25,11 @@ public class ValidatedGenericTypeShould : IClassFixture<WebApplicationFactory<IA
     [Fact]
     public async Task fail_validation_when_data_is_invalid()
     {
-        HttpResponseMessage response = await _client.PostAsJsonAsync("validate_using_validated_generic_type",
+        var response = await _client.PostAsJsonAsync("validate_using_validated_generic_type",
             new Product { Id = 0, Name = null });
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        HttpValidationProblemDetails content =
+        var content =
             (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
         content.Errors.Should().HaveCount(2);
         content.Errors["Id"].Should().BeEquivalentTo("'Id' must be greater than '0'.");
@@ -39,7 +39,7 @@ public class ValidatedGenericTypeShould : IClassFixture<WebApplicationFactory<IA
     [Fact]
     public async Task fail_validation_when_data_is_missing()
     {
-        HttpResponseMessage response =
+        var response =
             await _client.PostAsJsonAsync<Product>("validate_using_validated_generic_type", null!);
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
@@ -50,13 +50,13 @@ public class ValidatedGenericTypeShould : IClassFixture<WebApplicationFactory<IA
     [Fact]
     public async Task fail_validation_when_there_is_not_a_custom_validator_registered()
     {
-        HttpResponseMessage response = await _client.PostAsJsonAsync(
+        var response = await _client.PostAsJsonAsync(
             "fail_validation_using_validated_generic_type_when_there_is_not_a_custom_validator_registered",
             new ProductWithoutCustomValidator { Id = 0, Name = null });
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         (await response.Content.ReadAsStringAsync()).Should()
             .StartWith(
-                "System.InvalidOperationException: No service for type 'FluentValidation.IValidator`1[Api.Tests.Features.Validation.ProductWithoutCustomValidator]' has been registered.");
+                "System.InvalidOperationException: No service for type 'FluentValidation.IValidator`1[Api.Features.Validation.ProductWithoutCustomValidator]' has been registered.");
     }
 }

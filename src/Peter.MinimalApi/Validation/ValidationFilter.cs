@@ -1,57 +1,76 @@
 ﻿using System.Reflection;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Peter.MinimalApi.Validation;
 
 /// <summary>
-/// Validation using an attribute and an endpoint filter factory.
+/// Automatic validation using an endpoint filter factory.
 /// </summary>
-/// <remarks>https://benfoster.io/blog/minimal-api-validation-endpoint-filters/</remarks>
+/// <remarks>Inspired by https://benfoster.io/blog/minimal-api-validation-endpoint-filters/</remarks>
 public static class ValidationFilter
 {
     public static EndpointFilterDelegate ValidationEndpointFilterFactory(EndpointFilterFactoryContext context,
         EndpointFilterDelegate next)
     {
-        IEnumerable<ValidationDescriptor>? validationDescriptors =
-            GetValidationDescriptors(context.MethodInfo);
+        var validationDescriptors =
+            GetValidationDescriptors(context);
 
         return validationDescriptors.Any()
             ? invocationContext => Validate(validationDescriptors, invocationContext, next)
             : next;
     }
 
-    private static IEnumerable<ValidationDescriptor> GetValidationDescriptors(MethodBase methodInfo)
+    private static IEnumerable<ValidationDescriptor> GetValidationDescriptors(EndpointFilterFactoryContext context)
     {
-        ParameterInfo[]? parameters = methodInfo.GetParameters();
+        var parameters = context.MethodInfo.GetParameters();
+
         for (var i = 0; i < parameters.Length; i++)
         {
-            ParameterInfo? parameter = parameters[i];
-            if (parameter.GetCustomAttribute<ValidateAttribute>() is null)
+            var parameter = parameters[i];
+
+            if (!HasToValidate(parameter))
             {
                 continue;
             }
 
-            Type? validatorType = typeof(IValidator<>).MakeGenericType(parameter.ParameterType);
             yield return new ValidationDescriptor
             {
-                Name = parameter.Name!, Index = i, Type = parameter.ParameterType, ValidatorType = validatorType
+                Name = parameter.Name!, Index = i, Type = parameter.ParameterType,
+                ValidatorType = typeof(IValidator<>).MakeGenericType(parameter.ParameterType)
             };
         }
+    }
+
+    private static bool HasToValidate(ParameterInfo parameter)
+    {
+        var hasToValidate = parameter.GetCustomAttribute<ValidateAttribute>() is not null;
+        if (!hasToValidate)
+        {
+            var genericType = typeof(AbstractValidator<>).MakeGenericType(parameter.ParameterType);
+            hasToValidate = parameter.ParameterType.GetNestedTypes().Any(t => t.IsSubclassOf(genericType));
+            if (!hasToValidate)
+            {
+                hasToValidate = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(assembly => assembly.GetTypes(), (assembly, type) => type)
+                    .Any(type => type.IsSubclassOf(genericType));
+            }
+        }
+
+        return hasToValidate;
     }
 
     private static async ValueTask<object?> Validate(IEnumerable<ValidationDescriptor> validationDescriptors,
         EndpointFilterInvocationContext invocationContext, EndpointFilterDelegate next)
     {
-        foreach (ValidationDescriptor descriptor in validationDescriptors)
+        foreach (var descriptor in validationDescriptors)
         {
             var argument = invocationContext.Arguments[descriptor.Index]!;
             var validator =
                 (IValidator)invocationContext.HttpContext.RequestServices
                     .GetRequiredService(descriptor.ValidatorType);
-            ValidationResult validationResult = await validator.ValidateAsync(
+            var validationResult = await validator.ValidateAsync(
                 new ValidationContext<object>(argument)
             );
             if (!validationResult.IsValid)

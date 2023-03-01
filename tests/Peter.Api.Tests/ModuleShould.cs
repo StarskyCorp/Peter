@@ -1,4 +1,4 @@
-﻿using Api.Tests;
+﻿using Api;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;

@@ -1,6 +1,6 @@
 ﻿using Peter.MinimalApi.Validation;
 
-namespace Api.Tests.Features.Validation;
+namespace Api.Features.Validation;
 
 public static class ValidationEndpoints
 {
@@ -15,12 +15,17 @@ public static class ValidationEndpoints
                 ? Results.ValidationProblem(product.Errors)
                 : Results.Ok(product.Value));
 
-        app.MapPost("/validate_using_validate_attribute", ([Validate] Product product) => Results.Ok(product))
-            .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
+        // app.MapPost("/validate_using_validate_attribute", ([Validate] Product product) => Results.Ok(product))
+        //     .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
+        //
+        // app.MapPost("/fail_validation_using_validate_attribute_when_there_is_not_a_custom_validator_registered",
+        //         ([Validate] ProductWithoutCustomValidator product) => Results.Ok(product))
+        //     .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
+        
+        app.MapPost("/validate_using_validate_attribute", (Product product) => Results.Ok(product));
 
         app.MapPost("/fail_validation_using_validate_attribute_when_there_is_not_a_custom_validator_registered",
-                ([Validate] ProductWithoutCustomValidator product) => Results.Ok(product))
-            .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
+                (ProductWithoutCustomValidator product) => Results.Ok(product));        
 
         return app;
     }

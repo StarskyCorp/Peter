@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using Api.Tests;
+using Api;
 using FluentAssertions;
 using Peter.Testing;
 using Xunit;
@@ -29,7 +29,7 @@ public class AuthenticatedApiFixtureInCollectionFixtureShould
     [Fact]
     public async Task greet_non_authenticated()
     {
-        HttpResponseMessage response = await _fixture.Client().GetAsync("/Peter/authenticated");
+        var response = await _fixture.Client().GetAsync("/Peter/authenticated");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 

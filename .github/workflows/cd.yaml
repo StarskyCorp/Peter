@@ -11,29 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 7.0.x
+      - uses: actions/checkout@v2
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 7.0.x
 
-    - name: Build
-      run: dotnet build -c $BUILD_CONFIG --no-restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Test
-      run: dotnet test -c $BUILD_CONFIG --no-build --verbosity normal
+      - name: Build
+        run: dotnet build -c $BUILD_CONFIG --no-restore
+
+      - name: Test
+        run: dotnet test -c $BUILD_CONFIG --no-build --verbosity normal
 
     - name: Package
       run: dotnet pack Peter.sln -c Debug --property:PackageOutputPath=$GITHUB_WORKSPACE/packages
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v2.2.2
-      with:
-        path: packages    
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2.2.2
+        with:
+          path: packages
 
     - name: Publish if branch is main
       if: github.ref == 'refs/heads/main'
@@ -58,17 +58,17 @@ jobs:
         echo "::set-output name=version::$version"
       shell: pwsh
 
-    - name: Version tag
-      if: github.ref == 'refs/heads/main'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: `refs/tags/${process.env.PACKAGE_VERSION}`,
-            sha: context.sha
-          })
-      env:
-        PACKAGE_VERSION: ${{ steps.version.outputs.version }}
-      continue-on-error: true
+      - name: Version tag
+        if: github.ref == 'refs/heads/main'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${process.env.PACKAGE_VERSION}`,
+              sha: context.sha
+            })
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+        continue-on-error: true

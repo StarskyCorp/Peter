@@ -1,4 +1,4 @@
-﻿namespace Api.Tests.Features.Validation;
+﻿namespace Api.Features.Validation;
 
 public class ProductWithoutCustomValidator
 {
