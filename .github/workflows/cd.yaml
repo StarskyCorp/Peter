@@ -49,7 +49,7 @@ jobs:
       run: |
         $version = Get-Content -Path .\Directory.Build.props | Where-Object { $_ -Like "*<VersionPrefix>*" }
         if ($version) {
-            $version = $version.Trim().Substring("<Version>".Length)
+            $version = $version.Trim().Substring("<VersionPrefix>".Length)
             $version = $version.Substring(0, $version.IndexOf("</VersionPrefix>"))
         }
         else {
