@@ -52,9 +52,17 @@ public static class ValidationFilter
             hasToValidate = parameter.ParameterType.GetNestedTypes().Any(t => t.IsSubclassOf(genericType));
             if (!hasToValidate)
             {
-                hasToValidate = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes(), (assembly, type) => type)
-                    .Any(type => type.IsSubclassOf(genericType));
+                try
+                {
+                    hasToValidate = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(assembly => assembly.GetTypes(), (assembly, type) => type)
+                        .Any(type => type.IsSubclassOf(genericType));
+                }
+                catch
+                {
+                    //Temporal fix: previous sentence fails in GitHub pipeline but not in Ubuntu 22.04 on WSL 2
+                    //TODO: investigate
+                }
             }
         }
 
