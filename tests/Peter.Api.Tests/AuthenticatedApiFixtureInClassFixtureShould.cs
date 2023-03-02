@@ -45,6 +45,6 @@ public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<Authent
     public async Task show_api_logs()
     {
         var response = await _fixture.Client().GetStringAsync("/users/log");
-        response.Should().StartWith("Users");
+        response.Should().Be("Users");
     }
 }
