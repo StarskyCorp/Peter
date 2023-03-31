@@ -14,7 +14,7 @@ public static class ResultExtensions
         return result.GetType() switch
         {
             var type when type == typeof(NotFoundResult<T>) => ManageNotFound(result, options),
-            var type when type == typeof(ValidationResult<T>) => ManageValidation((ValidationResult<T>)result, options),
+            var type when type == typeof(InvalidResult<T>) => ManageInvalid((InvalidResult<T>)result, options),
             var type when type == typeof(Result<T>) => result.Success switch
             {
                 true => ManageOk(result, options),
@@ -75,12 +75,12 @@ public static class ResultExtensions
         return Results.StatusCode(500);
     }
 
-    private static IResult ManageValidation<T>(ValidationResult<T> result, ToMinimalApiOptions options) =>
+    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
         options.UseProblemDetails
             ? Results.ValidationProblem(result.ToProblemDetails())
             : Results.BadRequest(result.ValidationErrors);
 
-    private static IDictionary<string, string[]> ToProblemDetails<T>(this ValidationResult<T> result)
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result)
     {
         var problemDetails = result.ValidationErrors?
             .GroupBy(x => x.Field)

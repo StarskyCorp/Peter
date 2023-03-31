@@ -2,7 +2,7 @@ namespace Peter.Result;
 
 public sealed class NotFoundResult<T> : ResultBase<T>
 {
-    private NotFoundResult(T? value) : base(value, false)
+    private NotFoundResult(T? value) : base(false, value)
     {
     }
 

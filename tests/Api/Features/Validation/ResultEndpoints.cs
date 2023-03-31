@@ -13,9 +13,7 @@ public static class ResultEndpoints
             return result.ToMinimalApi();
         });
 
-        app.MapGet("/foo/{id:int}", (int id) =>
-        {
-        }).WithName("GetFoo");
+        app.MapGet("/foo/{id:int}", (int id) => { }).WithName("GetFoo");
 
         app.MapPost("/created_at", ([FromBody] string payload) =>
         {
@@ -50,13 +48,10 @@ public static class ResultEndpoints
         app.MapGet("/failed_not_using_problem_details", () =>
         {
             var result = Result<object>.CreateFailure(new[] { "A failure" });
-            return result.ToMinimalApi(options =>
-            {
-                options.UseProblemDetails = false;
-            });
+            return result.ToMinimalApi(options => { options.UseProblemDetails = false; });
         });
 
-        app.MapGet("/not_exists", () =>
+        app.MapGet("/not_found", () =>
         {
             var result = NotFoundResult<object>.Create();
             return result.ToMinimalApi();
@@ -68,7 +63,7 @@ public static class ResultEndpoints
             return result.ToMinimalApi(options => options.WithNoContentBehaviour());
         });
 
-        app.MapGet("/not_exists_with_value", () =>
+        app.MapGet("/not_found_with_value", () =>
         {
             var result = NotFoundResult<object>.Create("Peter");
             return result.ToMinimalApi();
@@ -76,7 +71,7 @@ public static class ResultEndpoints
 
         app.MapGet("/invalid", () =>
         {
-            var result = ValidationResult<object>.Create(new[] { new ValidationError("peter", "message") });
+            var result = InvalidResult<object>.Create(new[] { new ValidationError("peter", "message") });
             return result.ToMinimalApi();
         });
 

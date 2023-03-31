@@ -97,14 +97,14 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_not_found()
     {
-        var response = await _client.GetAsync("not_exists");
+        var response = await _client.GetAsync("not_found");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task return_not_found_with_value()
     {
-        var response = await _client.GetAsync("not_exists_with_value");
+        var response = await _client.GetAsync("not_found_with_value");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         (await response.Content.ReadAsStringAsync()).Should().Be("\"Peter\"");
     }

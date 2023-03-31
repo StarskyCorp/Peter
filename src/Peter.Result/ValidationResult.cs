@@ -4,11 +4,18 @@ public sealed class ValidationResult<T> : ResultBase<T>
 {
     public IEnumerable<ValidationError>? ValidationErrors { get; }
 
-    private ValidationResult(T? value, IEnumerable<ValidationError> validationErrors, bool success) :
-        base(value, success) =>
+    private ValidationResult(bool success, T? value, IEnumerable<ValidationError>? validationErrors) :
+        base(success, value) =>
         ValidationErrors = validationErrors;
 
-    public static ValidationResult<T> Create(IEnumerable<ValidationError> validationErrors, T? value = default,
-        bool success = false) =>
-        new(value, validationErrors, success);
+    public static ValidationResult<T> Create(bool success, T? value = default,
+        IEnumerable<ValidationError>? validationErrors = null)
+    {
+        if (!success)
+        {
+            ArgumentNullException.ThrowIfNull(validationErrors, nameof(validationErrors));
+        }
+
+        return new ValidationResult<T>(success, value, validationErrors);
+    }
 }

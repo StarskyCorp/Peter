@@ -2,21 +2,20 @@ namespace Peter.Result;
 
 public abstract class ResultBase<T>
 {
-    public T? Value { get; }
     public bool Success { get; }
-
+    public T? Value { get; }
     public IEnumerable<string>? Errors { get; }
 
-    protected ResultBase(T? value, bool success)
+    protected ResultBase(bool success, T? value)
     {
-        Value = value;
         Success = success;
+        Value = value;
     }
 
-    protected ResultBase(T? value, bool success, IEnumerable<string> errors)
+    protected ResultBase(bool success, T? value, IEnumerable<string> errors)
     {
-        Value = value;
         Success = success;
+        Value = value;
         Errors = errors;
     }
 
