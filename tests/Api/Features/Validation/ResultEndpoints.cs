@@ -58,25 +58,25 @@ public static class ResultEndpoints
 
         app.MapGet("/not_exists", () =>
         {
-            var result = NotExistsResult<object>.Create();
+            var result = NotFoundResult<object>.Create();
             return result.ToMinimalApi();
         });
 
         app.MapGet("/no_content", () =>
         {
-            var result = NotExistsResult<object>.Create();
+            var result = NotFoundResult<object>.Create();
             return result.ToMinimalApi(options => options.WithNoContentBehaviour());
         });
 
         app.MapGet("/not_exists_with_value", () =>
         {
-            var result = NotExistsResult<object>.Create("Peter");
+            var result = NotFoundResult<object>.Create("Peter");
             return result.ToMinimalApi();
         });
 
         app.MapGet("/invalid", () =>
         {
-            var result = InvalidResult<object>.Create(new[] { new ValidationError("peter", "message") });
+            var result = ValidationResult<object>.Create(new[] { new ValidationError("peter", "message") });
             return result.ToMinimalApi();
         });
 

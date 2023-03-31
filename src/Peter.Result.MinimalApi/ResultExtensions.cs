@@ -13,8 +13,8 @@ public static class ResultExtensions
 
         return result.GetType() switch
         {
-            var type when type == typeof(NotExistsResult<T>) => ManageNotExists(result, options),
-            var type when type == typeof(InvalidResult<T>) => ManageInvalid((InvalidResult<T>)result, options),
+            var type when type == typeof(NotFoundResult<T>) => ManageNotFound(result, options),
+            var type when type == typeof(ValidationResult<T>) => ManageValidation((ValidationResult<T>)result, options),
             var type when type == typeof(Result<T>) => result.Success switch
             {
                 true => ManageOk(result, options),
@@ -26,7 +26,7 @@ public static class ResultExtensions
 
     public static IResult ToMinimalApi<T>(this ResultBase<T> result) => result.ToMinimalApi(_ => { });
 
-    private static IResult ManageNotExists<T>(ResultBase<T> result, ToMinimalApiOptions options)
+    private static IResult ManageNotFound<T>(ResultBase<T> result, ToMinimalApiOptions options)
         => options.NoContentBehaviour is NoContentBehaviourType.NotFound
             ? Results.NotFound(result.Value)
             : Results.NoContent();
@@ -46,12 +46,9 @@ public static class ResultExtensions
             throw new ArgumentNullException(nameof(options.Route));
         }
 
-        if (options.OkBehaviour == OkBehaviourType.Accepted)
-        {
-            return Results.Accepted(options.Route, result.Value);
-        }
-
-        return Results.AcceptedAtRoute(options.Route, options.RouteValues, result.Value);
+        return options.OkBehaviour == OkBehaviourType.Accepted
+            ? Results.Accepted(options.Route, result.Value)
+            : Results.AcceptedAtRoute(options.Route, options.RouteValues, result.Value);
     }
 
     private static IResult ManageCreated<T>(ResultBase<T> result, ToMinimalApiOptions options)
@@ -61,12 +58,9 @@ public static class ResultExtensions
             throw new ArgumentNullException(nameof(options.Route));
         }
 
-        if (options.OkBehaviour == OkBehaviourType.Created)
-        {
-            return Results.Created(options.Route, result.Value);
-        }
-
-        return Results.CreatedAtRoute(options.Route, options.RouteValues, result.Value);
+        return options.OkBehaviour == OkBehaviourType.Created
+            ? Results.Created(options.Route, result.Value)
+            : Results.CreatedAtRoute(options.Route, options.RouteValues, result.Value);
     }
 
     private static IResult ManageFailure<T>(ResultBase<T> result, ToMinimalApiOptions options)
@@ -81,17 +75,17 @@ public static class ResultExtensions
         return Results.StatusCode(500);
     }
 
-    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
+    private static IResult ManageValidation<T>(ValidationResult<T> result, ToMinimalApiOptions options) =>
         options.UseProblemDetails
             ? Results.ValidationProblem(result.ToProblemDetails())
             : Results.BadRequest(result.ValidationErrors);
 
-    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result)
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this ValidationResult<T> result)
     {
-        var details = result.ValidationErrors?
+        var problemDetails = result.ValidationErrors?
             .GroupBy(x => x.Field)
             .ToDictionary(x => x.Key, x => x.Select(e => e.Message).ToArray());
 
-        return details ?? new Dictionary<string, string[]>();
+        return problemDetails ?? new Dictionary<string, string[]>();
     }
 }
