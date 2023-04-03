@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Peter.Result;
+using Peter.Result.MinimalApi;
 
 namespace Api.Features.Validation;
 
@@ -9,7 +10,7 @@ public static class ResultEndpoints
     {
         app.MapGet("/ok", () =>
         {
-            Result<string> result = "Peter";
+            OkResult<string> result = "Peter";
             return result.ToMinimalApi();
         });
 
@@ -17,37 +18,37 @@ public static class ResultEndpoints
 
         app.MapPost("/created_at", ([FromBody] string payload) =>
         {
-            Result<string> result = "Peter";
+            OkResult<string> result = "Peter";
             return result.ToMinimalApi(options => options.WithCreatedAtBehaviour("GetFoo", new { id = 1 }));
         });
 
         app.MapPost("/created", ([FromBody] string payload) =>
         {
-            Result<string> result = "Peter";
+            OkResult<string> result = "Peter";
             return result.ToMinimalApi(options => options.WithCreatedBehaviour("/anyUrl"));
         });
 
         app.MapPost("/accepted_at", ([FromBody] string payload) =>
         {
-            Result<string> result = "Peter";
+            OkResult<string> result = "Peter";
             return result.ToMinimalApi(options => options.WithAcceptedAtBehaviour("GetFoo", new { id = 2 }));
         });
 
         app.MapPost("/accepted", ([FromBody] string payload) =>
         {
-            Result<string> result = "Peter";
+            OkResult<string> result = "Peter";
             return result.ToMinimalApi(options => options.WithAcceptedBehaviour("/anyUrl"));
         });
 
         app.MapGet("/failed_using_problem_details", () =>
         {
-            var result = Result<object>.CreateFailure(new[] { new Error("A failure") });
+            var result = OkResult<object>.CreateFailure(new[] { new Error("A failure") });
             return result.ToMinimalApi();
         });
 
         app.MapGet("/failed_not_using_problem_details", () =>
         {
-            var result = Result<object>.CreateFailure(new[] { new Error("A failure") });
+            var result = OkResult<object>.CreateFailure(new[] { new Error("A failure") });
             return result.ToMinimalApi(options => { options.UseProblemDetails = false; });
         });
 
@@ -71,14 +72,8 @@ public static class ResultEndpoints
 
         app.MapGet("/invalid", () =>
         {
-            var result = InvalidResult<object>.Create(new[] { new ValidationError("peter", "message") });
+            var result = InvalidResult<object>.Create(new[] { new ValidationProblemError("peter", "message") });
             return result.ToMinimalApi();
-        });
-
-        app.MapGet("/invalid_using_validation_result", () =>
-        {
-            var validationResult = ValidationResult.Create(false, new[] { new ValidationError("peter", "message") });
-            return validationResult.ToInvalidResult().ToMinimalApi();
         });
 
         return app;

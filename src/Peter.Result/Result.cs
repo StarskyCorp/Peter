@@ -1,19 +1,34 @@
-﻿namespace Peter.Result;
+namespace Peter.Result;
 
-public sealed class Result<T> : ResultBase<T>
+public class Result<T>
 {
-    private Result(bool success, T? value) : base(success, value)
+    public bool Success { get; }
+    public T? Value { get; }
+    public IEnumerable<Error>? Errors { get; }
+
+    protected Result(bool success, T? value)
     {
+        Success = success;
+        Value = value;
     }
 
-    private Result(bool success, T? value, IEnumerable<Error>? errors) : base(success, value, errors)
+    protected Result(bool success, T? value, IEnumerable<Error>? errors)
     {
+        Success = success;
+        Value = value;
+        Errors = errors;
     }
+
 
     public static Result<T> CreateSuccess(T? value = default) => new(true, value);
 
-    public static Result<T> CreateFailure(IEnumerable<Error> errors, T? value = default) =>
+    public static Result<T> CreateFailure(T? value, IEnumerable<Error> errors) =>
         new(false, value, errors);
 
+    public static Result<T> CreateFailure(IEnumerable<Error> errors) =>
+        CreateFailure(default, errors);
+
+    public static implicit operator bool(Result<T> result) => result.Success;
+    
     public static implicit operator Result<T>(T value) => new(true, value);
 }

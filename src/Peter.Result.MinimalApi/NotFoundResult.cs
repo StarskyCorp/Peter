@@ -1,6 +1,6 @@
-namespace Peter.Result;
+namespace Peter.Result.MinimalApi;
 
-public sealed class NotFoundResult<T> : ResultBase<T>
+public sealed class NotFoundResult<T> : Result<T>
 {
     private NotFoundResult(T? value) : base(false, value)
     {

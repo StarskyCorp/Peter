@@ -126,15 +126,4 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
         content.Errors.Single().Should()
             .BeEquivalentTo(new KeyValuePair<string, string[]>("peter", new[] { "message" }));
     }
-    
-    [Fact]
-    public async Task return_invalid_using_validation_result()
-    {
-        var response = await _client.GetAsync("invalid_using_validation_result");
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var content =
-            (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
-        content.Errors.Single().Should()
-            .BeEquivalentTo(new KeyValuePair<string, string[]>("peter", new[] { "message" }));
-    }
 }
