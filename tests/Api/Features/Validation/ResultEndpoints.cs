@@ -41,13 +41,13 @@ public static class ResultEndpoints
 
         app.MapGet("/failed_using_problem_details", () =>
         {
-            var result = Result<object>.CreateFailure(new[] { "A failure" });
+            var result = Result<object>.CreateFailure(new[] { new Error("A failure") });
             return result.ToMinimalApi();
         });
 
         app.MapGet("/failed_not_using_problem_details", () =>
         {
-            var result = Result<object>.CreateFailure(new[] { "A failure" });
+            var result = Result<object>.CreateFailure(new[] { new Error("A failure") });
             return result.ToMinimalApi(options => { options.UseProblemDetails = false; });
         });
 
@@ -73,6 +73,12 @@ public static class ResultEndpoints
         {
             var result = InvalidResult<object>.Create(new[] { new ValidationError("peter", "message") });
             return result.ToMinimalApi();
+        });
+
+        app.MapGet("/invalid_using_validation_result", () =>
+        {
+            var validationResult = ValidationResult.Create(false, new[] { new ValidationError("peter", "message") });
+            return validationResult.ToInvalidResult().ToMinimalApi();
         });
 
         return app;

@@ -67,7 +67,7 @@ public static class ResultExtensions
     {
         if (options.UseProblemDetails && result.Errors != null)
         {
-            return Results.Problem(detail: string.Join(",", result.Errors),
+            return Results.Problem(detail: string.Join(",", result.Errors.Select(e => e.Message)),
                 title: "Error",
                 statusCode: StatusCodes.Status500InternalServerError);
         }
@@ -75,14 +75,14 @@ public static class ResultExtensions
         return Results.StatusCode(500);
     }
 
-    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
+    private static IResult ManageInvalid<T>(ResultBase<T> result, ToMinimalApiOptions options) =>
         options.UseProblemDetails
             ? Results.ValidationProblem(result.ToProblemDetails())
-            : Results.BadRequest(result.ValidationErrors);
+            : Results.BadRequest(result.Errors);
 
-    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result)
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this ResultBase<T> result)
     {
-        var problemDetails = result.ValidationErrors?
+        var problemDetails = result.Errors?.Cast<ValidationError>()
             .GroupBy(x => x.Field)
             .ToDictionary(x => x.Key, x => x.Select(e => e.Message).ToArray());
 

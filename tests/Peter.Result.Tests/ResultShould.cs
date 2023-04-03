@@ -26,7 +26,7 @@ public class ResultShould
     [Fact]
     public void create_failed_result()
     {
-        var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<string>>());
+        var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<Error>>());
         result.Success.Should().BeFalse();
         result.Value.Should().BeNull();
         result.Errors.Should().NotBeEmpty();
@@ -35,7 +35,7 @@ public class ResultShould
     [Fact]
     public void create_failed_result_with_value()
     {
-        var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<string>>(), Fixture.Create<object>());
+        var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<Error>>(), Fixture.Create<object>());
         result.Success.Should().BeFalse();
         result.Value.Should().NotBeNull();
         result.Errors.Should().NotBeEmpty();
@@ -64,7 +64,7 @@ public class ResultShould
         var result = InvalidResult<object>.Create(validationErrors);
         result.Success.Should().BeFalse();
         result.Value.Should().BeNull();
-        result.ValidationErrors.Should().NotBeEmpty();
+        result.Errors.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -74,27 +74,16 @@ public class ResultShould
         var result = InvalidResult<object>.Create(validationErrors, "foo");
         result.Success.Should().BeFalse();
         result.Value.Should().NotBeNull();
-        result.ValidationErrors.Should().NotBeEmpty();
+        result.Errors.Should().NotBeEmpty();
     }
 
     [Fact]
     public void create_validation_result()
     {
-        var validationErrors = new List<ValidationError> { new(field: "Name", message: "Mandatory") };
-        var result = ValidationResult<object>.Create(false, validationErrors: validationErrors);
-        result.Success.Should().BeFalse();
-        result.Value.Should().BeNull();
-        result.ValidationErrors.Should().NotBeEmpty();
-    }
-
-    [Fact]
-    public void create_validation_result_with_value()
-    {
-        var validationErrors = new List<ValidationError> { new(field: "Name", message: "Mandatory") };
-        var result = ValidationResult<object>.Create(false, "foo", validationErrors);
-        result.Success.Should().BeFalse();
-        result.Value.Should().NotBeNull();
-        result.ValidationErrors.Should().NotBeEmpty();
+        var errors = new List<ValidationError> { new(field: "Name", message: "Mandatory") };
+        var result = ValidationResult.Create(false, errors);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -107,7 +96,7 @@ public class ResultShould
     [Fact]
     public void convert_to_bool_from_failed_result()
     {
-        var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<string>>());
+        var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<Error>>());
         ((bool)result).Should().BeFalse();
     }
 
@@ -123,7 +112,7 @@ public class ResultShould
     [Fact]
     public void fail_when_creating_a_non_success_validation_result_with_no_validation_errors()
     {
-        Action act = () => ValidationResult<object>.Create(false, validationErrors: null);
+        Action act = () => ValidationResult.Create(false, null);
         act.Should().Throw<ArgumentNullException>();
     }
 }

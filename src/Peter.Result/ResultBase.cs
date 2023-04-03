@@ -4,7 +4,7 @@ public abstract class ResultBase<T>
 {
     public bool Success { get; }
     public T? Value { get; }
-    public IEnumerable<string>? Errors { get; }
+    public IEnumerable<Error>? Errors { get; }
 
     protected ResultBase(bool success, T? value)
     {
@@ -12,7 +12,7 @@ public abstract class ResultBase<T>
         Value = value;
     }
 
-    protected ResultBase(bool success, T? value, IEnumerable<string> errors)
+    protected ResultBase(bool success, T? value, IEnumerable<Error>? errors)
     {
         Success = success;
         Value = value;

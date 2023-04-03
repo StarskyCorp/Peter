@@ -1,21 +1,48 @@
 namespace Peter.Result;
 
-public sealed class ValidationResult<T> : ResultBase<T>
+public sealed class ValidationResult
 {
-    public IEnumerable<ValidationError>? ValidationErrors { get; }
+    public bool IsValid { get; }
 
-    private ValidationResult(bool success, T? value, IEnumerable<ValidationError>? validationErrors) :
-        base(success, value) =>
-        ValidationErrors = validationErrors;
+    public IEnumerable<Error>? Errors { get; }
 
-    public static ValidationResult<T> Create(bool success, T? value = default,
-        IEnumerable<ValidationError>? validationErrors = null)
+    private ValidationResult(bool isValid, IEnumerable<Error>? errors)
     {
-        if (!success)
+        IsValid = isValid;
+        Errors = errors;
+    }
+
+    public static ValidationResult Create(bool isValid, IEnumerable<Error>? errors = null)
+    {
+        if (!isValid)
         {
-            ArgumentNullException.ThrowIfNull(validationErrors, nameof(validationErrors));
+            ArgumentNullException.ThrowIfNull(errors, nameof(errors));
         }
 
-        return new ValidationResult<T>(success, value, validationErrors);
+        return new ValidationResult(isValid, errors);
+    }
+
+    public InvalidResult<object> ToInvalidResult()
+    {
+        return ToInvalidResult<object>();
+    }
+    
+    public InvalidResult<T> ToInvalidResult<T>(T? value = default)
+    {
+        var errors = new List<ValidationError>();
+        foreach (var error in Errors!)
+        {
+            switch (error)
+            {
+                case ValidationError validationError:
+                    errors.Add(validationError);
+                    break;
+                default:
+                    errors.Add(new ValidationError(string.Empty, error.Message));
+                    break;
+            }
+        }
+
+        return InvalidResult<T>.Create(errors, value);
     }
 }
