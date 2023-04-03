@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace Peter.Api.Tests;
+namespace Peter.Api.Tests.Validation;
 
 public class ValidationAttributeShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {
