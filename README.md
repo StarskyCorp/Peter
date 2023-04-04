@@ -129,6 +129,64 @@ if (!Validate())
 }
 ```
 
+A more elaborate example could be this:
+
+```csharp
+public class CreateOrderCommand
+{
+    public void Execute(int customerId)
+    {
+        var orderService = new OrderService();
+        var result = orderService.CreateOrder(customerId);
+        if (result)
+        {
+            // result.Value.CustomerId
+            // result.Value.CreatedDate
+        }
+        else if (result is CustomerNotFoundCreateOrderResult customerNotFoundCreateOrderResult)
+        {
+            // customerNotFoundCreateOrderResult.CustomerId
+        }
+    }
+}
+
+public class OrderService
+{
+    public Result<CreateOrderResult> CreateOrder(int customerId)
+    {
+        Customer? customerId = GetCustomerById(customerId);
+        if (customerId is null)
+        {
+            return new CustomerNotFoundCreateOrderResult(customerId);
+        }
+        return new CreateOrderResult(customerId, DateTime.UtcNow);
+    }
+}
+
+public class CreateOrderResult
+{
+    public int CustomerId { get; }
+    public DateTime CreatedDate { get; }
+
+    public void CreateOrderResult(int customerId, DateTime createdDate) 
+    {
+        CustomerId = customerId;
+        CreatedDate = createdDate;
+    }
+}
+
+
+public class CustomerNotFoundCreateOrderResult: Result<CreateOrderResult>
+{
+    public int CustomerId { get; }
+
+    public CustomerNotFoundCreateOrderResult(int customerId): base(false, null)
+    {
+        CustomerId = customerId;
+    }    
+}
+```
+
 *This package has not any relevant dependency.*
 
 ### Peter.Result.MinimalApi
@@ -185,10 +243,10 @@ The following table shows which HTTP status codes the result types are mapped to
 
 | Type                                   | HTTP status code                                                                                                                                | Value                                                                                                  |
 |----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| `NotExistResult`                       | 404 (default) `WithNotFoundBehaviour`<br/>204 `WithNoContentBehaviour`                                                                          | In the body payload if 404                                                                             |
-| `InvalidResult`                        | 400                                                                                                                                             | [HttpValidationProblemDetails](HttpValidationProblemDetails) collection in the body payload            |
-| `Result`<br/>*If `Success` is `false`* | 500                                                                                                                                             | [ProblemDetails](ProblemDetails) if `UseProblemDetails` is `true` (default), otherwise no body payload |
-| `Result`<br/>*If `Success` is `true`*  | 200 (default)<br/>201 `WithCreatedBehaviour`<br/>201 `WithCreatedAtBehaviour`<br/>202 `WithAcceptedBehaviour`<br/>202 `WithAcceptedAtBehaviour` | Body payload<br/>Location header if 201 or 202                                                         |
+| `NotExistResult<T>`                    | 404 (default) `WithNotFoundBehaviour`<br/>204 `WithNoContentBehaviour`                                                                          | In the body payload if 404                                                                             |
+| `InvalidResult<T>`                        | 400                                                                                                                                             | [HttpValidationProblemDetails](HttpValidationProblemDetails) collection in the body payload            |
+| `Result<T>`<br/>*If `Success` is `false`* | 500                                                                                                                                             | [ProblemDetails](ProblemDetails) if `UseProblemDetails` is `true` (default), otherwise no body payload |
+| `Result<T>`<br/>*If `Success` is `true`*  | 200 (default)<br/>201 `WithCreatedBehaviour`<br/>201 `WithCreatedAtBehaviour`<br/>202 `WithAcceptedBehaviour`<br/>202 `WithAcceptedAtBehaviour` | Body payload<br/>Location header if 201 or 202                                                         |
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*
 
