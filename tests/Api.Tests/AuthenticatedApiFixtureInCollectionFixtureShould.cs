@@ -1,11 +1,10 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using Api;
 using FluentAssertions;
 using Peter.Testing;
 using Xunit;
 
-namespace Peter.Api.Tests;
+namespace Api.Tests;
 
 [CollectionDefinition(nameof(DatabaseCollectionFixture))]
 public class DatabaseCollectionFixture : ICollectionFixture<AuthenticatedApiFixture<IApiMarker>>
@@ -17,7 +16,8 @@ public class AuthenticatedApiFixtureInCollectionFixtureShould
 {
     private readonly AuthenticatedApiFixture<IApiMarker> _fixture;
 
-    public AuthenticatedApiFixtureInCollectionFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture) => _fixture = fixture;
+    public AuthenticatedApiFixtureInCollectionFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture) =>
+        _fixture = fixture;
 
     [Fact]
     public async Task greet()

@@ -135,8 +135,7 @@ if (!Validate())
 
 Using `Result<T>`, this package creates new result types, that are tied to ASP.NET Core.
 
-- `OkResult`
-- `NotFoundResult`
+- `NotExistResult`
 - `InvalidResult`
 
 With the help of the `ToMinimalApi()` extension method, you can return any of these types (including the `Result<T>` base type) from your command or query and have a thin controller with minimal code required.
@@ -149,7 +148,7 @@ app.MapGet("customers/{id:int}", async (IMediator mediator, [AsParameters] GetCu
         var customer =  await mediator.Send(request);
         if (customer is not null)
         {
-            return Results.NotFound();
+            return Results.NotExist();
         }
 
         return Results.Ok(customer);
@@ -175,12 +174,21 @@ public async Task<Result<GetCustomerResponse>> Handle(
             cancellationToken: cancellationToken);
     if (customer is null)
     {
-        return NotFoundResult<GetCustomerResponse>.Create();
+        return NotExistResult<GetCustomerResponse>.Create();
     }
 
     return Result<GetCustomerResponse>.CreateSuccess(customer);
 }
 ```
+
+The following table shows which HTTP status codes the result types are mapped to and what options we have to configure them.
+
+| Type                                   | HTTP status code                                                                                                                                | Value                                                                                                  |
+|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `NotExistResult`                       | 404 (default) `WithNotFoundBehaviour`<br/>204 `WithNoContentBehaviour`                                                                          | In the body payload if 404                                                                             |
+| `InvalidResult`                        | 400                                                                                                                                             | [HttpValidationProblemDetails](HttpValidationProblemDetails) collection in the body payload            |
+| `Result`<br/>*If `Success` is `false`* | 500                                                                                                                                             | [ProblemDetails](ProblemDetails) if `UseProblemDetails` is `true` (default), otherwise no body payload |
+| `Result`<br/>*If `Success` is `true`*  | 200 (default)<br/>201 `WithCreatedBehaviour`<br/>201 `WithCreatedAtBehaviour`<br/>202 `WithAcceptedBehaviour`<br/>202 `WithAcceptedAtBehaviour` | Body payload<br/>Location header if 201 or 202                                                         |
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*
 

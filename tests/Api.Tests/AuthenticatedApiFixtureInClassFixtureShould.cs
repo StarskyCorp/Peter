@@ -1,18 +1,18 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using Api;
 using FluentAssertions;
 using Peter.Testing;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Peter.Api.Tests;
+namespace Api.Tests;
 
 public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<AuthenticatedApiFixture<IApiMarker>>
 {
     private readonly AuthenticatedApiFixture<IApiMarker> _fixture;
 
-    public AuthenticatedApiFixtureInClassFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture, ITestOutputHelper output)
+    public AuthenticatedApiFixtureInClassFixtureShould(AuthenticatedApiFixture<IApiMarker> fixture,
+        ITestOutputHelper output)
     {
         _fixture = fixture;
         fixture.RegisterLoggerProvider(output);

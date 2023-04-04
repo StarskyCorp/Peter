@@ -1,9 +1,8 @@
-﻿using Api;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace Peter.Api.Tests;
+namespace Api.Tests;
 
 public class ModuleShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {

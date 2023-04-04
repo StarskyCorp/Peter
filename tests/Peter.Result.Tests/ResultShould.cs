@@ -36,29 +36,29 @@ public class ResultShould
     public void create_failed_result_with_errors()
     {
         var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<Error>>());
-        
+
         result.Success.Should().BeFalse();
         result.Value.Should().BeNull();
         result.Errors.Should().NotBeEmpty();
     }
-    
+
     [Fact]
     public void create_failed_result_with_errors_and_value()
     {
         var value = Fixture.Create<object>();
-        
+
         var result = Result<object>.CreateFailure(value, Fixture.Create<IEnumerable<Error>>());
-        
+
         result.Success.Should().BeFalse();
         result.Value.Should().Be(value);
         result.Errors.Should().NotBeEmpty();
-    }    
-    
+    }
+
     [Fact]
     public void convert_to_bool_from_successful_result()
     {
         var result = Result<object>.CreateSuccess(Fixture.Create<object>());
-        
+
         ((bool)result).Should().BeTrue();
     }
 
@@ -66,7 +66,7 @@ public class ResultShould
     public void convert_to_bool_from_failed_result()
     {
         var result = Result<object>.CreateFailure(Fixture.Create<IEnumerable<Error>>());
-        
+
         ((bool)result).Should().BeFalse();
     }
 
@@ -74,9 +74,9 @@ public class ResultShould
     public void convert_to_successful_result_from_any_value()
     {
         var value = Fixture.Create<string>();
-        
+
         Result<string> result = value;
-        
+
         result.Success.Should().BeTrue();
         result.Value.Should().Be(value);
     }

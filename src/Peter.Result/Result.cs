@@ -6,27 +6,31 @@ public class Result<T>
     public T? Value { get; }
     public IEnumerable<Error>? Errors { get; }
 
-    protected Result(bool success, T? value)
+    protected Result(bool success)
     {
         Success = success;
+    }
+    
+    protected Result(bool success, T? value): this(success)
+    {
         Value = value;
     }
 
-    protected Result(bool success, T? value, IEnumerable<Error>? errors)
+    protected Result(bool success, T? value, IEnumerable<Error>? errors): this(success, value)
     {
-        Success = success;
-        Value = value;
         Errors = errors;
     }
 
-
     public static Result<T> CreateSuccess(T? value = default) => new(true, value);
 
-    public static Result<T> CreateFailure(T? value, IEnumerable<Error> errors) =>
-        new(false, value, errors);
+    public static Result<T> CreateFailure(T? value = default) =>
+        CreateFailure(value, Enumerable.Empty<Error>());
 
     public static Result<T> CreateFailure(IEnumerable<Error> errors) =>
         CreateFailure(default, errors);
+
+    public static Result<T> CreateFailure(T? value, IEnumerable<Error> errors) =>
+        new(false, value, errors);
 
     public static implicit operator bool(Result<T> result) => result.Success;
     

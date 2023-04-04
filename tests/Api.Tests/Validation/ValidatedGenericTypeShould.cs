@@ -1,13 +1,12 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Api;
 using Api.Features.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace Peter.Api.Tests.Validation;
+namespace Api.Tests.Validation;
 
 public class ValidatedGenericTypeShould : IClassFixture<WebApplicationFactory<IApiMarker>>
 {

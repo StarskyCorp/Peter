@@ -2,10 +2,10 @@
 
 public class ValidationProblemError : Error
 {
-    public ValidationProblemError(string field, string message) : base(message)
-    {
-        Field = field ?? throw new ArgumentNullException(nameof(field));
-    }
+    public string Identifier { get; }
 
-    public string Field { get; }
+    public ValidationProblemError(string identifier, string message) : base(message)
+    {
+        Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
+    }
 }

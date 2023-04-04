@@ -6,9 +6,9 @@ public class UsersModule : IModule
 {
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder app)
     {
-        var routeGroupBuilder = app.MapGroup("/users").WithTags("Users");
-        routeGroupBuilder.MapGet("/", () => "Users");
-        routeGroupBuilder.MapGet("/log", (ILogger<UsersModule> logger) =>
+        var group = app.MapGroup("/users").WithTags("Users");
+        group.MapGet("/", () => "Users");
+        group.MapGet("/log", (ILogger<UsersModule> logger) =>
         {
             logger.LogInformation("Log inside endpoint");
             return "Users";
