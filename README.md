@@ -191,10 +191,10 @@ public class CustomerNotFoundCreateOrderResult: Result<CreateOrderResult>
 
 ### Peter.Result.MinimalApi
 
-Using `Result<T>`, this package creates new result types, that are tied to ASP.NET Core.
+Using `Result<T>`, this package creates new result types, that are tied in some way to ASP.NET Core.
 
-- `NotExistResult`
-- `InvalidResult`
+- `NotExistResult<T>`
+- `InvalidResult<T>`
 
 With the help of the `ToMinimalApi()` extension method, you can return any of these types (including the `Result<T>` base type) from your command or query and have a thin controller with minimal code required.
 
