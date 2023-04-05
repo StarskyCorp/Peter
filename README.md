@@ -140,12 +140,13 @@ public class CreateOrderCommand
         var result = orderService.CreateOrder(customerId);
         if (result)
         {
+            // result.Value.OrderId
             // result.Value.CustomerId
             // result.Value.CreatedDate
         }
-        else if (result is CustomerNotFoundCreateOrderResult customerNotFoundCreateOrderResult)
+        else if (result is CustomerHasNoCreditCreateOrderResult customerHasNoCreditCreateOrderResult)
         {
-            // customerNotFoundCreateOrderResult.CustomerId
+            // customerHasNoCreditCreateOrderResult.CustomerId
         }
     }
 }
@@ -154,27 +155,64 @@ public class OrderService
 {
     public Result<CreateOrderResult> CreateOrder(int customerId)
     {
-        Customer? customerId = GetCustomerById(customerId);
-        if (customerId is null)
+        var customer = GetCustomerById(customerId);
+        if (customer is null)
         {
+            // return Result<CreateOrderResult>.CreateError(new Error[]
+            // {
+            //    new($"Customer {customerId} not found")
+            // });
+            
             return new CustomerNotFoundCreateOrderResult(customerId);
         }
-        return new CreateOrderResult(customerId, DateTime.UtcNow);
+        if (!HasCredit(customer))
+        {
+            return new CustomerHasNoCreditCreateOrderResult(customer.Id);
+        }
+        // Create order...
+        var orderId = 5;
+        return new CreateOrderResult(orderId, customerId, DateTime.UtcNow);
     }
+
+    private Customer? GetCustomerById(int customerId)
+    {
+        return new Customer();
+    }
+    
+    private bool HasCredit(Customer customer)
+    {
+        return false;
+    }
+}
+
+public class Customer
+{
+    public int Id { get; set; }
 }
 
 public class CreateOrderResult
 {
+    public int OrderId { get; }
     public int CustomerId { get; }
     public DateTime CreatedDate { get; }
 
-    public void CreateOrderResult(int customerId, DateTime createdDate) 
+    public CreateOrderResult(int orderId, int customerId, DateTime createdDate) 
     {
+        OrderId = orderId;
         CustomerId = customerId;
         CreatedDate = createdDate;
     }
 }
 
+public class CustomerHasNoCreditCreateOrderResult: Result<CreateOrderResult>
+{
+    public int CustomerId { get; }
+
+    public CustomerHasNoCreditCreateOrderResult(int customerId): base(false, null)
+    {
+        CustomerId = customerId;
+    }    
+}
 
 public class CustomerNotFoundCreateOrderResult: Result<CreateOrderResult>
 {

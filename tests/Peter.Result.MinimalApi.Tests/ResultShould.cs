@@ -13,7 +13,7 @@ public class ResultShould
     {
         var result = NotExistResult<object>.Create();
 
-        result.Success.Should().BeFalse();
+        result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
     }
 
@@ -24,7 +24,7 @@ public class ResultShould
 
         var result = NotExistResult<object>.Create(value);
 
-        result.Success.Should().BeFalse();
+        result.Ok.Should().BeFalse();
         result.Value.Should().Be(value);
     }
 
@@ -35,7 +35,7 @@ public class ResultShould
 
         var result = InvalidResult<object>.Create(errors);
 
-        result.Success.Should().BeFalse();
+        result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
         result.Errors.Should().NotBeEmpty();
     }
@@ -48,7 +48,7 @@ public class ResultShould
 
         var result = InvalidResult<object>.Create(errors, value);
 
-        result.Success.Should().BeFalse();
+        result.Ok.Should().BeFalse();
         result.Value.Should().Be(value);
         result.Errors.Should().NotBeEmpty();
     }

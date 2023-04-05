@@ -34,13 +34,13 @@ public static class ResultEndpoints
 
         app.MapGet("/internal_server_error_using_problem_details", () =>
         {
-            var result = Result<object>.CreateFailure(new[] { new Error("A failure") });
+            var result = Result<object>.CreateError(new[] { new Error("A failure") });
             return result.ToMinimalApi();
         });
 
         app.MapGet("/internal_server_error_not_using_problem_details", () =>
         {
-            var result = Result<object>.CreateFailure(new[] { new Error("A failure") });
+            var result = Result<object>.CreateError(new[] { new Error("A failure") });
             return result.ToMinimalApi(options => { options.UseProblemDetails = false; });
         });
 

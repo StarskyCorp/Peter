@@ -15,7 +15,7 @@ public static class ResultExtensions
         {
             var type when type == typeof(NotExistResult<T>) => ManageNotExist(result, options),
             var type when type == typeof(InvalidResult<T>) => ManageInvalid((InvalidResult<T>)result, options),
-            var type when type == typeof(Result<T>) => result.Success switch
+            var type when type == typeof(Result<T>) => result.Ok switch
             {
                 true => ManageOk(result, options),
                 false => ManageFailure(result, options)
