@@ -53,7 +53,7 @@ app.MapGet("customers/{id:int}",
         (await mediator.Send(request)).ToMinimalApi());
 ```
 
-You will have this other in a separated and well organized file:
+You will have this other:
 
 ```csharp
 // Program.cs
@@ -86,99 +86,93 @@ public class CustomersModule : IModule
 *This package has not any relevant dependency.*
 
 ### Peter.Result
-`Result<T>` is a generic type representing an operation's success or failure. It has no relation with ASP.NET Core and can be used independently. You'll often use it when you need to return not just a value, but also a typed representation of an operation. Including, optionally, a list of errors in case it has not been satisfactory.
+`Result<T>` is a abstract generic type representing an operation's success or failure. It has no relation with ASP.NET Core and can be used independently. You'll often use it when you need to return not just a value, but also a typed representation of an operation.
 
-The main purpose of `Result<T>` is to avoid the [exception-driven control flow anti-pattern](https://stackoverflow.com/questions/729379/why-not-use-exceptions-as-regular-flow-of-control).
+The main purpose of `Result<T>` and all their descendants is to avoid the [exception-driven control flow anti-pattern](https://stackoverflow.com/questions/729379/why-not-use-exceptions-as-regular-flow-of-control).
 
-For example, instead of writing this:
-
-```csharp
-public (bool success, IEnumerable<string> errors) Validate() 
-{
-    // Remaining code goes here
-}
-
-var (success, errors) = Validate();
-if (!success)
-{
-    // Do something with errors...
-}
-```
-
-You could write this:
+Here, you can see a code snippet that doesn't use exceptions to guide control flow and use pattern matching to explore return value type:
 
 ```csharp
-public Result<bool> Validate()
+namespace Peter.Result;
+
+public class CreateOrderHandler
 {
-    // Remaining code goes here
-}
-
-var result = Validate();
-if (!result)
-{
-    // Do something with result.Errors...
-}
-```
-
-Or even this with the help of implicit type conversion:
-
-```csharp
-if (!Validate())
-{
-    // I don't care about mistakes
-}
-```
-
-A more elaborate example could be this:
-
-```csharp
-public class CreateOrderCommand
-{
-    public void Execute(int customerId)
+    public void Handle(int customerId)
     {
         var orderService = new OrderService();
         var result = orderService.CreateOrder(customerId);
-        if (result)
+        if (result) // if (result is OkResult<CreateOrderResponse>)
         {
             // result.Value.OrderId
             // result.Value.CustomerId
             // result.Value.CreatedDate
         }
-        else if (result is CustomerHasNoCreditCreateOrderResult customerHasNoCreditCreateOrderResult)
-        {
-            // customerHasNoCreditCreateOrderResult.CustomerId
-        }
+        // else
+        // {
+        //     throw new Exception("Order was not able to be created");
+        // }
+        else
+            switch (result)
+            {
+                case NotFoundResult<CreateOrderResponse> notFoundResult:
+                    break;
+                case InvalidResult<CreateOrderResponse> invalidResult:
+                    break;
+                case CustomerHasNoCredit customerHasNoCredit:
+                    // customerHasNoCredit.CurrentCredit
+                    // customerHasNoCredit.AttemptedCredit
+                    break;
+                case ErrorResult<CreateOrderResponse> errorResult:
+                    break;
+            }
     }
 }
 
 public class OrderService
 {
-    public Result<CreateOrderResult> CreateOrder(int customerId)
+    public Result<CreateOrderResponse> CreateOrder(int customerId)
     {
-        var customer = GetCustomerById(customerId);
-        if (customer is null)
+        var customerByIdResult = GetCustomerById(customerId);
+        if (!customerByIdResult)
         {
-            // return Result<CreateOrderResult>.CreateError(new Error[]
-            // {
-            //    new($"Customer {customerId} not found")
-            // });
-            
-            return new CustomerNotFoundCreateOrderResult(customerId);
+            // Instead of throw new NotFoundException() or whatever you want...
+            return NotFoundResult<CreateOrderResponse>.Create();
         }
+
+        var customer = customerByIdResult.Value!;
+        if (!customer.IsGold)
+        {
+            return InvalidResult<CreateOrderResponse>.Create(nameof(customer.IsGold),
+                "Customer must be gold for creating an order");
+        }
+
         if (!HasCredit(customer))
         {
-            return new CustomerHasNoCreditCreateOrderResult(customer.Id);
+            // Instead of throw new CustomerHasNoCreditException() or whatever you want...
+            return CustomerHasNoCredit.Create(currentCredit: 1000, attemptedCredit: 2000);
         }
-        // Create order...
-        var orderId = 5;
-        return new CreateOrderResult(orderId, customerId, DateTime.UtcNow);
+
+        try
+        {
+            // A business rule without a custom type to represent it
+        }
+        catch (Exception)
+        {
+            return ErrorResult<CreateOrderResponse>.Create("Something happened");
+        }
+
+        // Here goes the remaining code for creating an order, and finally...
+
+        return OkResult<CreateOrderResponse>.Create(new CreateOrderResponse(5, customer.Id, DateTime.UtcNow));
     }
 
-    private Customer? GetCustomerById(int customerId)
+    private Result<Customer> GetCustomerById(int customerId)
     {
-        return new Customer();
+        // You should return one of the following...
+        // return OkResult<Customer>.Create(new Customer() { Id = customerId});
+        return NotFoundResult<Customer>.Create();
     }
-    
+
     private bool HasCredit(Customer customer)
     {
         return false;
@@ -188,15 +182,16 @@ public class OrderService
 public class Customer
 {
     public int Id { get; set; }
+    public bool IsGold { get; set; }
 }
 
-public class CreateOrderResult
+public class CreateOrderResponse
 {
     public int OrderId { get; }
     public int CustomerId { get; }
     public DateTime CreatedDate { get; }
 
-    public CreateOrderResult(int orderId, int customerId, DateTime createdDate) 
+    public CreateOrderResponse(int orderId, int customerId, DateTime createdDate)
     {
         OrderId = orderId;
         CustomerId = customerId;
@@ -204,24 +199,21 @@ public class CreateOrderResult
     }
 }
 
-public class CustomerHasNoCreditCreateOrderResult: Result<CreateOrderResult>
+public class CustomerHasNoCredit : Result<CreateOrderResponse>
 {
-    public int CustomerId { get; }
+    public int CurrentCredit { get; }
+    public int AttemptedCredit { get; }
 
-    public CustomerHasNoCreditCreateOrderResult(int customerId): base(false, null)
+    private CustomerHasNoCredit(int currentCredit, int attemptedCredit) : base(false, null)
     {
-        CustomerId = customerId;
-    }    
-}
+        CurrentCredit = currentCredit;
+        AttemptedCredit = attemptedCredit;
+    }
 
-public class CustomerNotFoundCreateOrderResult: Result<CreateOrderResult>
-{
-    public int CustomerId { get; }
-
-    public CustomerNotFoundCreateOrderResult(int customerId): base(false, null)
+    public static CustomerHasNoCredit Create(int currentCredit, int attemptedCredit)
     {
-        CustomerId = customerId;
-    }    
+        return new CustomerHasNoCredit(currentCredit, attemptedCredit);
+    }
 }
 ```
 
@@ -229,12 +221,7 @@ public class CustomerNotFoundCreateOrderResult: Result<CreateOrderResult>
 
 ### Peter.Result.MinimalApi
 
-Using `Result<T>`, this package creates new result types, that are tied in some way to ASP.NET Core.
-
-- `NotExistResult<T>`
-- `InvalidResult<T>`
-
-With the help of the `ToMinimalApi()` extension method, you can return any of these types (including the `Result<T>` base type) from your command or query and have a thin controller with minimal code required.
+With the help of the `ToMinimalApi()` extension method, you can return any of the previous types from your command or query and have a thin controller with minimal code required.
 
 For example, instead of writing this:
 
@@ -244,21 +231,21 @@ app.MapGet("customers/{id:int}", async (IMediator mediator, [AsParameters] GetCu
         var customer =  await mediator.Send(request);
         if (customer is not null)
         {
-            return Results.NotExist();
+            return Results.NotFound();
         }
 
         return Results.Ok(customer);
     });
 ```
 
-You could write this and the final result would be the same (including both, not found and ok result):
+You could write this other:
 
 ```csharp
 app.MapGet("customers/{id:int}", async (IMediator mediator, [AsParameters] GetCustomerRequest request) =>
         (await mediator.Send(request)).ToMinimalApi());
 ```
 
-From the query side (and returning the base type `Result<T>`), we return one specialized type or another easily.
+From the application logic side (and returning the base type `Result<T>`), we return one specialized type or another easily.
 
 ```csharp
 public async Task<Result<GetCustomerResponse>> Handle(
@@ -270,21 +257,26 @@ public async Task<Result<GetCustomerResponse>> Handle(
             cancellationToken: cancellationToken);
     if (customer is null)
     {
-        return NotExistResult<GetCustomerResponse>.Create();
+        return NotFoundResult<GetCustomerResponse>.Create();
     }
 
-    return Result<GetCustomerResponse>.CreateSuccess(customer);
+    return OkResult<GetCustomerResponse>.Create(customer);
 }
 ```
 
 The following table shows which HTTP status codes the result types are mapped to and what options we have to configure them.
 
-| Type                                   | HTTP status code                                                                                                                                | Value                                                                                                  |
-|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| `NotExistResult<T>`                    | 404 (default) `WithNotFoundBehaviour`<br/>204 `WithNoContentBehaviour`                                                                          | In the body payload if 404                                                                             |
-| `InvalidResult<T>`                        | 400                                                                                                                                             | [HttpValidationProblemDetails](HttpValidationProblemDetails) collection in the body payload            |
-| `Result<T>`<br/>*If `Success` is `false`* | 500                                                                                                                                             | [ProblemDetails](ProblemDetails) if `UseProblemDetails` is `true` (default), otherwise no body payload |
-| `Result<T>`<br/>*If `Success` is `true`*  | 200 (default)<br/>201 `WithCreatedBehaviour`<br/>201 `WithCreatedAtBehaviour`<br/>202 `WithAcceptedBehaviour`<br/>202 `WithAcceptedAtBehaviour` | Body payload<br/>Location header if 201 or 202                                                         |
+| Type                | HTTP status code | Behavior                               | Value                                                                   |
+| ------------------- | ---------------- | -------------------------------------- |-------------------------------------------------------------------------|
+| `OkResult<T>`       | 200 (default)    | `UseOk`                                | Body                                                                    |
+|                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`   | Body<br/>Location header                                                |
+|                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute` | Body<br/>Location header                                                |
+| `ErrorResult<T>`    | 500 (defaul)     | `UseProblem`                           | [ProblemDetails](ProblemDetails)                                        |
+|                     | 500              | `UseInternalServerError`               | None                                                                    |
+| `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                          | Body                                                                    |
+|                     | 204              | `UseNoContent`                         | None                                                                    |
+| `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                 | [HttpValidationProblemDetails](HttpValidationProblemDetails) collection |
+|                     | 400              | `UseBadRequest`                        | [ValidationError](src/Peter.Result/ValidationError.cs) collection       |
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*
 

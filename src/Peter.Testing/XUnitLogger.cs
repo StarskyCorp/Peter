@@ -41,6 +41,8 @@ public class XUnitLogger : ILogger
     {
         public static readonly NoopDisposable Instance = new();
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }

@@ -14,10 +14,7 @@ public class AuthenticatedApiFixture<T> : WebApplicationFactory<T> where T : cla
     public HttpClient AuthenticatedClient(IEnumerable<Claim> claims) => CreateDefaultClient().WithIdentity(claims);
 
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
-        builder.ConfigureTestServices(services =>
-        {
-            services.AddTestAuthentication();
-        });
+        builder.ConfigureTestServices(services => { services.AddTestAuthentication(); });
 
     private readonly object _lockObj = new();
     private bool _loggerProviderRegistered;

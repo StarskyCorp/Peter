@@ -2,55 +2,81 @@
 
 public class ToMinimalApiOptions
 {
-    public string Route { get; private set; } = string.Empty;
+    public OkType Ok { get; private set; }
+    public string Route { get; private set; }
     public object? RouteValues { get; private set; }
-    public OkBehaviourType OkBehaviour { get; private set; } = OkBehaviourType.Ok;
-    public NoContentBehaviourType NoContentBehaviour { get; private set; } = NoContentBehaviourType.NotFound;
+    public ErrorType Error { get; private set; }
+    public NotFoundType NotFound { get; private set; }
+    public InvalidType Invalid { get; private set; }
 
-    public bool UseProblemDetails { get; set; } = true;
-
-    public void WithCreatedBehaviour(string route, object? routeValues = null)
+    public ToMinimalApiOptions()
     {
+        Ok = OkType.Ok;
+        Route = string.Empty;
+        Error = ErrorType.Problem;
+        NotFound = NotFoundType.NotFound;
+        Invalid = InvalidType.ValidationProblem;
+    }
+
+    public void UseOk()
+    {
+        Ok = OkType.Ok;
+    }
+
+    public void UseCreated(string route, object? routeValues = null)
+    {
+        Ok = OkType.Created;
         Route = route;
         RouteValues = routeValues;
-        OkBehaviour = OkBehaviourType.Created;
     }
 
-    public void WithCreatedAtBehaviour(string routeName, object? routeValues = null)
+    public void UseCreatedAtRoute(string routeName, object? routeValues = null)
     {
+        Ok = OkType.CreatedAtRoute;
         Route = routeName;
         RouteValues = routeValues;
-        OkBehaviour = OkBehaviourType.CreatedAt;
     }
 
-    public void WithAcceptedBehaviour(string route)
+    public void UseAccepted(string route)
     {
+        Ok = OkType.Accepted;
         Route = route;
-        OkBehaviour = OkBehaviourType.Accepted;
     }
 
-    public void WithAcceptedAtBehaviour(string routeName, object? routeValues = null)
+    public void UseAcceptedAtRoute(string routeName, object? routeValues = null)
     {
+        Ok = OkType.AcceptedAtRoute;
         Route = routeName;
         RouteValues = routeValues;
-        OkBehaviour = OkBehaviourType.AcceptedAt;
     }
 
-    public void WithNoContentBehaviour() => NoContentBehaviour = NoContentBehaviourType.NoContent;
-    public void WithNotFoundBehaviour() => NoContentBehaviour = NoContentBehaviourType.NotFound;
-}
+    public void UseProblem()
+    {
+        Error = ErrorType.Problem;
+    }
 
-public enum OkBehaviourType
-{
-    Ok,
-    Created,
-    CreatedAt,
-    Accepted,
-    AcceptedAt
-}
+    public void UseInternalServerError()
+    {
+        Error = ErrorType.InternalServerError;
+    }
 
-public enum NoContentBehaviourType
-{
-    NoContent,
-    NotFound
+    public void UseNotFound()
+    {
+        NotFound = NotFoundType.NotFound;
+    }
+
+    public void UseNoContent()
+    {
+        NotFound = NotFoundType.NoContent;
+    }
+
+    public void UseValidationProblem()
+    {
+        Invalid = InvalidType.ValidationProblem;
+    }
+
+    public void UseBadRequest()
+    {
+        Invalid = InvalidType.BadRequest;
+    }
 }

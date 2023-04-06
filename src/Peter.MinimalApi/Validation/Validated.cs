@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Peter.MinimalApi.Validation;
 
 /// <summary>
-/// Complex type for automatically validating a binding parameter.
+///     Complex type for automatically validating a binding parameter.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <remarks>https://khalidabuhakmeh.com/minimal-api-validation-with-fluentvalidation</remarks>
@@ -39,6 +39,7 @@ public class Validated<T>
         {
             throw new ArgumentException($"{parameter.Name} cannot be null.");
         }
+
         IValidator<T>? validator = context.RequestServices.GetRequiredService<IValidator<T>>();
         var validationResult = await validator.ValidateAsync(value);
         return new Validated<T>(value, validationResult);

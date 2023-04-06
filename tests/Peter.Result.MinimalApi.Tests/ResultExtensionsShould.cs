@@ -22,64 +22,6 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task return_not_found()
-    {
-        var response = await _client.GetAsync("not_found");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task return_not_found_with_value()
-    {
-        var response = await _client.GetAsync("not_found_with_value");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        (await response.Content.ReadAsStringAsync()).Should().Be("\"Peter\"");
-    }
-
-    [Fact]
-    public async Task return_no_content()
-    {
-        var response = await _client.GetAsync("no_content");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-    }
-
-    [Fact]
-    public async Task return_bad_request()
-    {
-        var response = await _client.GetAsync("bad_request");
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var content =
-            (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
-        content.Errors.Single().Should()
-            .BeEquivalentTo(new KeyValuePair<string, string[]>("peter", new[] { "message" }));
-    }
-
-    [Fact]
-    public async Task return_internal_server_error_using_problem_details()
-    {
-        var response = await _client.GetAsync("internal_server_error_using_problem_details");
-
-        var details =
-            JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync())!;
-        var statusCode = (HttpStatusCode)details.Status!;
-        statusCode.Should().Be(HttpStatusCode.InternalServerError);
-        details.Title.Should().Be("Error");
-        details.Detail.Should().Be("A failure");
-    }
-
-    [Fact]
-    public async Task return_internal_server_error_not_using_problem_details()
-    {
-        var response = await _client.GetAsync("internal_server_error_not_using_problem_details");
-
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-    }
-
-    [Fact]
     public async Task return_ok()
     {
         var response = await _client.GetAsync("ok");
@@ -101,9 +43,9 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task return_created_at()
+    public async Task return_created_at_route()
     {
-        var response = await _client.PostAsJsonAsync("created_at", "foo");
+        var response = await _client.PostAsJsonAsync("created_at_route", "foo");
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var baseAddress = _app.Server.BaseAddress.ToString().TrimEnd('/');
@@ -124,14 +66,76 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task return_accepted_at()
+    public async Task return_accepted_at_route()
     {
-        var response = await _client.PostAsJsonAsync("accepted_at", "foo");
+        var response = await _client.PostAsJsonAsync("accepted_at_route", "foo");
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
         var baseAddress = _app.Server.BaseAddress.ToString().TrimEnd('/');
         response.Headers.Location.Should().Be($"{baseAddress}/foo/2");
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("\"Peter\"");
+    }
+
+    [Fact]
+    public async Task return_problem()
+    {
+        var response = await _client.GetAsync("problem");
+
+        var details =
+            JsonConvert.DeserializeObject<ProblemDetails>(await response.Content.ReadAsStringAsync())!;
+        var statusCode = (HttpStatusCode)details.Status!;
+        statusCode.Should().Be(HttpStatusCode.InternalServerError);
+        details.Title.Should().Be("Error");
+        details.Detail.Should().Be("A failure");
+    }
+
+    [Fact]
+    public async Task return_internal_server_error()
+    {
+        var response = await _client.GetAsync("internal_server_error");
+
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+    }
+
+    [Fact]
+    public async Task return_not_found()
+    {
+        var response = await _client.GetAsync("not_found");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await response.Content.ReadAsStringAsync()).Should().Be("\"Peter\"");
+    }
+
+    [Fact]
+    public async Task return_no_content()
+    {
+        var response = await _client.GetAsync("no_content");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task return_validation_problem()
+    {
+        var response = await _client.GetAsync("validation_problem");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var content =
+            (await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>())!;
+        content.Errors.Single().Should()
+            .BeEquivalentTo(new KeyValuePair<string, string[]>("peter", new[] { "message" }));
+    }
+
+    [Fact]
+    public async Task return_bad_request()
+    {
+        var response = await _client.GetAsync("bad_request");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var content =
+            (await response.Content.ReadFromJsonAsync<IEnumerable<ValidationError>>())!;
+        content.Single().Should()
+            .BeEquivalentTo(new ValidationError("peter", "message"));
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Peter.MinimalApi.Modules;
 
 /// <summary>
-/// Carter inspired solution for minimal api modules organization.
+///     Carter inspired solution for minimal api modules organization.
 /// </summary>
 /// <remarks>https://timdeschryver.dev/blog/maybe-its-time-to-rethink-our-project-structure-with-dot-net-6</remarks>
 public static class ModuleExtensions

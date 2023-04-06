@@ -20,6 +20,7 @@ internal static class ClaimsSerializer
         {
             return Enumerable.Empty<Claim>();
         }
+
         var serializer = new TicketSerializer();
         var ticket = serializer.Deserialize(Convert.FromBase64String(text))!;
         return ticket.Principal.Claims;
