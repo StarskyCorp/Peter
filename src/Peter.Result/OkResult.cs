@@ -2,7 +2,7 @@ namespace Peter.Result;
 
 public class OkResult<T> : Result<T>
 {
-    private OkResult(T? value) : base(true, value)
+    protected OkResult(T? value) : base(true, value)
     {
     }
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Peter.Result;
 
-namespace Api.Features.Validation;
+namespace Api;
 
 public static class ResultEndpoints
 {
@@ -39,6 +39,12 @@ public static class ResultEndpoints
 
         app.MapGet("/foo/{id:int}", (int id) => { }).WithName("GetFoo");
 
+        app.MapGet("/very_ok", () =>
+        {
+            var result = VeryOkResult<string>.Create("Peter");
+            return result.ToMinimalApi();
+        });
+
         app.MapGet("/problem", () =>
         {
             var result = ErrorResult<object>.Create(new[] { new Error("A failure") });
@@ -73,6 +79,12 @@ public static class ResultEndpoints
         {
             var result = InvalidResult<object>.Create("peter", "message");
             return result.ToMinimalApi(options => options.UseBadRequest());
+        });
+
+        app.MapGet("/teapot", (bool ok) =>
+        {
+            var result = TeapotResult<string>.Create(ok, "Peter");
+            return result.ToMinimalApi();
         });
 
         return app;

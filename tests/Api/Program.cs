@@ -1,9 +1,10 @@
 ﻿using Api;
-using Api.Features.Authentication;
-using Api.Features.Validation;
+using Api.Authentication;
+using Api.Validation;
 using FluentValidation;
 using Peter.MinimalApi.Modules;
 using Peter.MinimalApi.Validation;
+using Peter.Result.MinimalApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -13,6 +14,17 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
 
 var app = builder.Build();
+
+app.ConfigureToMinimalApi(options =>
+{
+    ToMinimalApiOptions.AddCustomHandler(typeof(TeapotResult<string>),
+        result =>
+        {
+            var teapotResult = (TeapotResult<string>)result;
+            return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+                statusCode: 418);
+        });
+});
 
 if (app.Environment.IsDevelopment())
 {

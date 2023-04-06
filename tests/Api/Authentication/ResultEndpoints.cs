@@ -1,4 +1,4 @@
-﻿namespace Api.Features.Authentication;
+﻿namespace Api.Authentication;
 
 public static class AuthenticationEndpoints
 {

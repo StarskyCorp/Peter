@@ -264,6 +264,8 @@ public async Task<Result<GetCustomerResponse>> Handle(
 }
 ```
 
+#### HTTP status codes
+
 The following table shows which HTTP status codes the result types are mapped to and what options we have to configure them.
 
 | Type                | HTTP status code | Behavior                               | Value                                                                   |
@@ -279,6 +281,105 @@ The following table shows which HTTP status codes the result types are mapped to
 |                     | 400              | `UseBadRequest`                        | [ValidationError](src/Peter.Result/ValidationError.cs) collection       |
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*
+
+#### Extending
+
+##### Inheritance
+
+You can inherit from an existing type:
+
+```csharp
+/// <summary>
+/// A specialized version of <see cref="OkResult"/>
+/// </summary>
+public class VeryOkResult<T> : OkResult<T>
+{
+    protected VeryOkResult(T? value): base(value)
+    {
+        
+    }
+    
+    public new static VeryOkResult<T> Create(T? value = default)
+    {
+        return new VeryOkResult<T>(value);
+    }
+    
+    public static implicit operator VeryOkResult<T>(T value) => new(value);
+}
+```
+
+And then use it in a request endpoint handler. Since it is a type that inherits from `OkResult<T>`, it will behave in the same way:
+
+```csharp
+app.MapGet("/very_ok", () =>
+{
+    var result = VeryOkResult<string>.Create("Peter");
+    return result.ToMinimalApi();
+});
+```
+
+#### Configuration
+
+If you want to customize the behavior of `ToMinimalApi` globally, you'll need to use the `ConfigurePeterMinimalApi` method.
+
+##### Default behavior
+
+Although [HTTP status codes](#http-status-codes) shows the default values, you can change them globally as follows:
+
+```csharp
+app.ConfigureToMinimalApi(options =>
+{
+    options.UseBadRequest();
+});
+```
+
+##### Custom types
+
+This section covers the need to customize the output of a custom return type.
+
+For example, the custom [TeapotResult](tests/Api/TeapotResult.cs) return type should return a [418](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418) HTTP result status code.
+
+> `TeapotResult` could have been inherited from `OkResult<T>`, but inheriting from `Result<T>` could be a success or failure.
+
+```csharp
+using Peter.Result;
+
+namespace Api;
+
+public class TeapotResult<T> : Result<T>
+{
+    protected TeapotResult(bool ok, T? value) : base(ok, value)
+    {
+    }
+
+    public static TeapotResult<T> Create(bool ok, T? value = default)
+    {
+        return new TeapotResult<T>(ok, value);
+    }
+}
+```
+
+Now, we can configure how to manage `TeapotResult<string>`:
+
+```csharp
+app.ConfigureToMinimalApi(options =>
+{
+    ToMinimalApiOptions.AddCustomHandler(typeof(TeapotResult<string>),
+        result =>
+        {
+            var teapotResult = (TeapotResult<string>)result;
+            return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+                statusCode: 418);
+        });
+});
+```
+
+And finally, you can use your new custom type seamlessly with Peter.
+
+```csharp
+app.MapGet("/teapot", (bool ok) =>
+    TeapotResult<string>.Create(ok, "Peter").ToMinimalApi());
+```
 
 ### Peter.Testing
 

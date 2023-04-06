@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Api.Features.Validation;
+using Api.Validation;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -56,6 +56,6 @@ public class ValidatedGenericTypeShould : IClassFixture<WebApplicationFactory<IA
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         (await response.Content.ReadAsStringAsync()).Should()
             .StartWith(
-                "System.InvalidOperationException: No service for type 'FluentValidation.IValidator`1[Api.Features.Validation.ProductWithoutCustomValidator]' has been registered.");
+                "System.InvalidOperationException: No service for type 'FluentValidation.IValidator`1[Api.Validation.ProductWithoutCustomValidator]' has been registered.");
     }
 }

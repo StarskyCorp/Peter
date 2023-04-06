@@ -1,6 +1,6 @@
 ﻿using Peter.MinimalApi.Modules;
 
-namespace Api.Features.Modules;
+namespace Api.Modules;
 
 public class UsersModule : IModule
 {

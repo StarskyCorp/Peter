@@ -78,6 +78,16 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
+    public async Task return_very_ok()
+    {
+        var response = await _client.GetAsync("very_ok");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("\"Peter\"");
+    }
+
+    [Fact]
     public async Task return_problem()
     {
         var response = await _client.GetAsync("problem");
@@ -137,5 +147,25 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
             (await response.Content.ReadFromJsonAsync<IEnumerable<ValidationError>>())!;
         content.Single().Should()
             .BeEquivalentTo(new ValidationError("peter", "message"));
+    }
+
+    [Fact]
+    public async Task return_teapot()
+    {
+        var response = await _client.GetAsync("teapot?ok=true");
+
+        ((int)response.StatusCode).Should().Be(418);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("I'm Peter's teapot");
+    }
+
+    [Fact]
+    public async Task return_no_teapot()
+    {
+        var response = await _client.GetAsync("teapot?ok=false");
+
+        ((int)response.StatusCode).Should().Be(418);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("I'm not Peter's teapot");
     }
 }

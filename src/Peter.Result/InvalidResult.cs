@@ -4,7 +4,7 @@ public class InvalidResult<T> : Result<T>
 {
     public IEnumerable<ValidationError> ValidationErrors { get; }
 
-    private InvalidResult(T? value, IEnumerable<ValidationError>? validationErrors) :
+    protected InvalidResult(T? value, IEnumerable<ValidationError>? validationErrors) :
         base(false, value)
     {
         ValidationErrors = validationErrors ?? Enumerable.Empty<ValidationError>();

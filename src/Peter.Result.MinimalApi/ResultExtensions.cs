@@ -8,16 +8,23 @@ public static class ResultExtensions
 {
     public static IResult ToMinimalApi<T>(this Result<T> result, Action<ToMinimalApiOptions> configure)
     {
-        var options = new ToMinimalApiOptions();
+        var customHandler = ToMinimalApiOptions.GetCustomHandler(result.GetType());
+        if (customHandler is not null)
+        {
+            return customHandler(result);
+        }
+
+        var options = ToMinimalApiOptions.Create();
         configure(options);
 
-        return result.GetType() switch
+        return result switch
         {
-            var type when type == typeof(OkResult<T>) => ManageOk(result, options),
-            var type when type == typeof(ErrorResult<T>) => ManageError((ErrorResult<T>)result, options),
-            var type when type == typeof(NotFoundResult<T>) => ManageNotFound(result, options),
-            var type when type == typeof(InvalidResult<T>) => ManageInvalid((InvalidResult<T>)result, options),
-            _ => throw new ArgumentOutOfRangeException(nameof(result))
+            OkResult<T> => ManageOk(result, options),
+            ErrorResult<T> errorResult => ManageError(errorResult, options),
+            NotFoundResult<T> => ManageNotFound(result, options),
+            InvalidResult<T> invalidResult => ManageInvalid(invalidResult, options),
+            _ => throw new ArgumentOutOfRangeException(nameof(result), result.GetType(),
+                $"{nameof(ToMinimalApi)} is not able to handle type {result.GetType()}")
         };
     }
 
@@ -30,22 +37,23 @@ public static class ResultExtensions
             OkType.Ok => Results.Ok(result.Value),
             OkType.Created or OkType.CreatedAtRoute => ManageCreated(result, options),
             OkType.Accepted or OkType.AcceptedAtRoute => ManageAccepted(result, options),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(result), result.GetType(),
+                $"{nameof(ManageOk)} is not able to handle type {result.GetType()}")
         };
     }
 
     private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options)
     {
         return options.Ok is OkType.Created
-            ? Results.Created(options.Route, result.Value)
-            : Results.CreatedAtRoute(options.Route, options.RouteValues, result.Value);
+            ? Results.Created(options.Uri!, result.Value)
+            : Results.CreatedAtRoute(options.RouteName, options.RouteValues, result.Value);
     }
 
     private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options)
     {
         return options.Ok is OkType.Accepted
-            ? Results.Accepted(options.Route, result.Value)
-            : Results.AcceptedAtRoute(options.Route, options.RouteValues, result.Value);
+            ? Results.Accepted(options.Uri, result.Value)
+            : Results.AcceptedAtRoute(options.RouteName, options.RouteValues, result.Value);
     }
 
     private static IResult ManageError<T>(ErrorResult<T> result, ToMinimalApiOptions options)

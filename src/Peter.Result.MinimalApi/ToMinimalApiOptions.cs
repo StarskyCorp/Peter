@@ -1,52 +1,75 @@
-﻿namespace Peter.Result.MinimalApi;
+﻿using Microsoft.AspNetCore.Http;
 
-public class ToMinimalApiOptions
+namespace Peter.Result.MinimalApi;
+
+public class ToMinimalApiOptions : ICloneable
 {
     public OkType Ok { get; private set; }
-    public string Route { get; private set; }
-    public object? RouteValues { get; private set; }
+
     public ErrorType Error { get; private set; }
+
     public NotFoundType NotFound { get; private set; }
+
     public InvalidType Invalid { get; private set; }
 
-    public ToMinimalApiOptions()
+    public string? Uri { get; private set; }
+
+    public string? RouteName { get; private set; }
+
+    public object? RouteValues { get; private set; }
+
+    public static readonly ToMinimalApiOptions DefaultOptions = new();
+    public static readonly Dictionary<Type, Func<object, IResult>?> CustomHandlers = new();
+
+    private ToMinimalApiOptions()
     {
         Ok = OkType.Ok;
-        Route = string.Empty;
         Error = ErrorType.Problem;
         NotFound = NotFoundType.NotFound;
         Invalid = InvalidType.ValidationProblem;
     }
+
+    public static ToMinimalApiOptions Create()
+    {
+        return (ToMinimalApiOptions)DefaultOptions.Clone();
+    }
+
+    public static void AddCustomHandler(Type type, Func<object, IResult>? handler)
+    {
+        CustomHandlers[type] = handler;
+    }
+
+    public static Func<object, IResult>? GetCustomHandler(Type type) =>
+        CustomHandlers.TryGetValue(type, out var handler) ? handler : null;
 
     public void UseOk()
     {
         Ok = OkType.Ok;
     }
 
-    public void UseCreated(string route, object? routeValues = null)
+    public void UseCreated(string? uri)
     {
         Ok = OkType.Created;
-        Route = route;
-        RouteValues = routeValues;
+        Uri = uri;
     }
 
-    public void UseCreatedAtRoute(string routeName, object? routeValues = null)
+    public void UseCreatedAtRoute(string? routeName, object? routeValues = null)
     {
         Ok = OkType.CreatedAtRoute;
-        Route = routeName;
+        RouteName = routeName;
         RouteValues = routeValues;
     }
 
-    public void UseAccepted(string route)
+    public void UseAccepted(string? uri)
     {
         Ok = OkType.Accepted;
-        Route = route;
+        Uri = uri;
     }
 
-    public void UseAcceptedAtRoute(string routeName, object? routeValues = null)
+    public void UseAcceptedAtRoute(string? routeName, object? routeValues = null)
     {
         Ok = OkType.AcceptedAtRoute;
-        Route = routeName;
+        RouteName = routeName;
         RouteValues = routeValues;
     }
 
@@ -79,4 +102,13 @@ public class ToMinimalApiOptions
     {
         Invalid = InvalidType.BadRequest;
     }
+
+    public object Clone() =>
+        new ToMinimalApiOptions
+        {
+            Ok = Ok,
+            Error = Error,
+            NotFound = NotFound,
+            Invalid = Invalid
+        };
 }

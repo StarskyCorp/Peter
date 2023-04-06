@@ -4,7 +4,7 @@ public class ErrorResult<T> : Result<T>
 {
     public IEnumerable<Error> Errors { get; }
 
-    private ErrorResult(T? value, IEnumerable<Error>? errors) : base(false, value)
+    protected ErrorResult(T? value, IEnumerable<Error>? errors) : base(false, value)
     {
         Errors = errors ?? Enumerable.Empty<Error>();
     }
