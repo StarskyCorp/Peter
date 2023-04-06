@@ -30,7 +30,7 @@ This package includes two utilities to solve common problems when you are develo
 
 There are two options inspired by https://khalidabuhakmeh.com/minimal-api-validation-with-fluentvalidation and https://benfoster.io/blog/minimal-api-validation-endpoint-filters/ respectively.
 
-You can take a look at the [validation tests](tests/Peter.Api.Tests/Validation) to understand how to use each of them.
+You can take a look at the [validation tests](tests/Api.Tests/Validation) to understand how to use each of them.
 
 #### Modules
 
@@ -271,11 +271,11 @@ The following table shows which HTTP status codes the result types are mapped to
 | `OkResult<T>`       | 200 (default)    | `UseOk`                                | Body                                                                    |
 |                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`   | Body<br/>Location header                                                |
 |                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute` | Body<br/>Location header                                                |
-| `ErrorResult<T>`    | 500 (defaul)     | `UseProblem`                           | [ProblemDetails](ProblemDetails)                                        |
+| `ErrorResult<T>`    | 500 (defaul)     | `UseProblem`                           | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                        |
 |                     | 500              | `UseInternalServerError`               | None                                                                    |
 | `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                          | Body                                                                    |
 |                     | 204              | `UseNoContent`                         | None                                                                    |
-| `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                 | [HttpValidationProblemDetails](HttpValidationProblemDetails) collection |
+| `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                 | [HttpValidationProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpvalidationproblemdetails?view=aspnetcore-7.0) collection |
 |                     | 400              | `UseBadRequest`                        | [ValidationError](src/Peter.Result/ValidationError.cs) collection       |
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*
@@ -288,19 +288,16 @@ This packages includes utilities to ease minimal APIs testing.
 - `XUnitLogger`. Because, maybe, you will want to see your generated log output in the test runner.
 - `AuthenticateApiFixture`. A fixture ready to encapsulate the complexity of having to authenticate the user during testing.
 
-In the [Peter.Api.Tests](tests/Peter.Api.Tests) project you can see how to use them in a real testing scenario.
+In the [Api.Tests](tests/Api.Tests) project you can see how to use them in a real testing scenario.
 
 *This package has not any relevant dependency.*
 
 ## Acknowledgements
 
-Peter is built using the some existing open source projects like:
-
-- [xUnit.net](https://xunit.net/)
-- [Fluent Assertions](https://fluentassertions.com/)
-
-In addition, some of the Peter "tools" are inspired by awesome open source projects like:
+Some of the Peter "tools" are inspired by awesome open-source projects or excellent posts:
 
 - [Acheve Test Host by the xabaril team](https://github.com/Xabaril/Acheve.TestHost)
 - [Carter, created by some NancyFx mantainers](https://github.com/CarterCommunity/Carter)
 - [Result, created by Steve "Ardalis" Smith](https://github.com/ardalis/Result)
+- https://khalidabuhakmeh.com/minimal-api-validation-with-fluentvalidation
+- https://benfoster.io/blog/minimal-api-validation-endpoint-filters/.
