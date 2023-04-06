@@ -18,8 +18,9 @@ public class ToMinimalApiOptions : ICloneable
 
     public object? RouteValues { get; private set; }
 
-    public static readonly ToMinimalApiOptions DefaultOptions = new();
-    public static readonly Dictionary<Type, Func<object, IResult>?> CustomHandlers = new();
+    private static readonly ToMinimalApiOptions DefaultOptions = new();
+    
+    private static readonly Dictionary<Type, Func<object, IResult>?> CustomHandlers = new();
 
     private ToMinimalApiOptions()
     {
@@ -29,12 +30,17 @@ public class ToMinimalApiOptions : ICloneable
         Invalid = InvalidType.ValidationProblem;
     }
 
+    public static ToMinimalApiOptions GetDefaultOptions()
+    {
+        return DefaultOptions;
+    }
+    
     public static ToMinimalApiOptions Create()
     {
         return (ToMinimalApiOptions)DefaultOptions.Clone();
     }
 
-    public static void AddCustomHandler(Type type, Func<object, IResult>? handler)
+    public static void UseCustomHandler(Type type, Func<object, IResult>? handler)
     {
         CustomHandlers[type] = handler;
     }

@@ -17,13 +17,12 @@ var app = builder.Build();
 
 app.ConfigureToMinimalApi(options =>
 {
-    ToMinimalApiOptions.AddCustomHandler(typeof(TeapotResult<string>),
-        result =>
-        {
-            var teapotResult = (TeapotResult<string>)result;
-            return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
-                statusCode: 418);
-        });
+    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
+    {
+        var teapotResult = (TeapotResult<string>)result;
+        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+            statusCode: 418);
+    });
 });
 
 if (app.Environment.IsDevelopment())

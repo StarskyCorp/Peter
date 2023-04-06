@@ -9,7 +9,7 @@ public static class ApplicationBuilderExtensions
         this IApplicationBuilder app,
         Action<ToMinimalApiOptions> configure)
     {
-        configure(ToMinimalApiOptions.DefaultOptions);
+        configure(ToMinimalApiOptions.GetDefaultOptions());
         return app;
     }
 }
