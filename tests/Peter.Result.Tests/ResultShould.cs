@@ -29,6 +29,7 @@ public class ResultShould
     public void create_error_result()
     {
         var result = ErrorResult<object>.Create();
+        
         result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
         result.Errors.Should().BeEmpty();
