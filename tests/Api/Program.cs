@@ -17,6 +17,13 @@ var app = builder.Build();
 
 app.ConfigureToMinimalApi(options =>
 {
+    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result =>
+    {
+        var teapotResult = (TeapotResult<int>)result;
+        return Results.Content($"I'm a {teapotResult.Value} teapot year old",
+            statusCode: 418);
+    });    
+    
     ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
     {
         var teapotResult = (TeapotResult<string>)result;

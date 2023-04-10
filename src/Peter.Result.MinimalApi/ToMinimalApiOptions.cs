@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http;
 
 namespace Peter.Result.MinimalApi;
 
@@ -20,7 +22,7 @@ public class ToMinimalApiOptions : ICloneable
 
     private static readonly ToMinimalApiOptions DefaultOptions = new();
     
-    private static readonly Dictionary<Type, Func<object, IResult>?> CustomHandlers = new();
+    private static readonly ConcurrentDictionary<Type, Func<object, IResult>> CustomHandlers = new();
 
     private ToMinimalApiOptions()
     {
@@ -39,8 +41,8 @@ public class ToMinimalApiOptions : ICloneable
     {
         return (ToMinimalApiOptions)DefaultOptions.Clone();
     }
-
-    public static void UseCustomHandler(Type type, Func<object, IResult>? handler)
+    
+    public static void UseCustomHandler(Type type, Func<object, IResult> handler)
     {
         CustomHandlers[type] = handler;
     }

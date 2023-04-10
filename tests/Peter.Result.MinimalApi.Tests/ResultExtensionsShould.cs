@@ -150,9 +150,9 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task return_teapot()
+    public async Task return_open_teapot()
     {
-        var response = await _client.GetAsync("teapot?ok=true");
+        var response = await _client.GetAsync("open_teapot?ok=true");
 
         ((int)response.StatusCode).Should().Be(418);
         var content = await response.Content.ReadAsStringAsync();
@@ -160,12 +160,38 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     }
 
     [Fact]
-    public async Task return_no_teapot()
+    public async Task return_open_no_teapot()
     {
-        var response = await _client.GetAsync("teapot?ok=false");
+        var response = await _client.GetAsync("open_teapot?ok=false");
 
         ((int)response.StatusCode).Should().Be(418);
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("I'm not Peter's teapot");
     }
+    
+    [Fact]
+    public async Task return_closed_teapot()
+    {
+        var response = await _client.GetAsync("closed_teapot?age=47");
+
+        ((int)response.StatusCode).Should().Be(418);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("I'm a 47 teapot year old");
+    }
+    
+    [Fact]
+    public async Task return_ok_using_result_type_base()
+    {
+        var response = await _client.GetAsync("using_result_type_base?ok=true");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }    
+    
+    [Fact]
+    public async Task return_error_using_result_type_base()
+    {
+        var response = await _client.GetAsync("using_result_type_base?ok=false");
+
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+    }        
 }

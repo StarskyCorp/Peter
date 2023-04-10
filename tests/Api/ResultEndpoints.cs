@@ -81,9 +81,21 @@ public static class ResultEndpoints
             return result.ToMinimalApi(options => options.UseBadRequest());
         });
 
-        app.MapGet("/teapot", (bool ok) =>
+        app.MapGet("/open_teapot", (bool ok) =>
         {
             var result = TeapotResult<string>.Create(ok, "Peter");
+            return result.ToMinimalApi();
+        });
+        
+        app.MapGet("/closed_teapot", (int age) =>
+        {
+            var result = TeapotResult<int>.Create(true, age);
+            return result.ToMinimalApi();
+        });
+        
+        app.MapGet("/using_result_type_base", (bool ok) =>
+        {
+            var result = new Result<object>(ok);
             return result.ToMinimalApi();
         });
 

@@ -268,25 +268,25 @@ public async Task<Result<GetCustomerResponse>> Handle(
 
 The following table shows which HTTP status codes the result types are mapped to and what options we have to configure them.
 
-| Type                | HTTP status code | Behavior                               | Value                                                                   |
-| ------------------- | ---------------- | -------------------------------------- |-------------------------------------------------------------------------|
-| `OkResult<T>`       | 200 (default)    | `UseOk`                                | Body                                                                    |
-|                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`   | Body<br/>Location header                                                |
-|                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute` | Body<br/>Location header                                                |
-| `ErrorResult<T>`    | 500 (defaul)     | `UseProblem`                           | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                        |
-|                     | 500              | `UseInternalServerError`               | None                                                                    |
-| `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                          | Body                                                                    |
-|                     | 204              | `UseNoContent`                         | None                                                                    |
+| Type                | HTTP status code | Behavior                               | Value                                                                                                                                                              |
+|---------------------|------------------|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `OkResult<T>`       | 200 (default)    | `UseOk`                                | Body                                                                                                                                                               |
+|                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`   | Body<br/>Location header                                                                                                                                           |
+|                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute` | Body<br/>Location header                                                                                                                                           |
+| `ErrorResult<T>`    | 500 (defaul)     | `UseProblem`                           | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                         |
+|                     | 500              | `UseInternalServerError`               | None                                                                                                                                                               |
+| `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                          | Body                                                                                                                                                               |
+|                     | 204              | `UseNoContent`                         | None                                                                                                                                                               |
 | `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                 | [HttpValidationProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpvalidationproblemdetails?view=aspnetcore-7.0) collection |
-|                     | 400              | `UseBadRequest`                        | [ValidationError](src/Peter.Result/ValidationError.cs) collection       |
+|                     | 400              | `UseBadRequest`                        | [ValidationError](src/Peter.Result/ValidationError.cs) collection                                                                                                  |
+| `Result<T>`         | 200              |                                        | Body                                                                                                                                                               |
+|                     | 500              |                                        | None                                                                                                                                                               |
 
-*This package has a dependency of [Peter.Result](#peterresult) package.*
+#### Extending Peter.Result.MinimalApi
 
-#### Extending
+##### Through inheritance
 
-##### Inheritance
-
-You can inherit from an existing type:
+You can inherit from an existing `Result<T>` or any of their descendants:
 
 ```csharp
 /// <summary>
@@ -318,13 +318,15 @@ app.MapGet("/very_ok", () =>
 });
 ```
 
-#### Configuration
+#### Configuration Peter.Result.MinimalApi
 
 If you want to customize the behavior of `ToMinimalApi` globally, you'll need to use the `ConfigurePeterMinimalApi` method.
 
 ##### Default behavior
 
 Although [HTTP status codes](#http-status-codes) shows the default values, you can change them globally as follows:
+
+For example, with this code `InvalidResult<T>` will use `Results.BadRequest` instead of `Results.ValidationProblem`.
 
 ```csharp
 app.ConfigureToMinimalApi(options =>
@@ -335,7 +337,7 @@ app.ConfigureToMinimalApi(options =>
 
 ##### Custom types
 
-This section covers the need to customize the output of a custom return type.
+This section covers the need to customize the output of a new return type.
 
 For example, the custom [TeapotResult](tests/Api/TeapotResult.cs) return type should return a [418](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418) HTTP result status code.
 
@@ -379,6 +381,34 @@ And finally, you can use your new custom type seamlessly with Peter.
 app.MapGet("/teapot", (bool ok) =>
     TeapotResult<string>.Create(ok, "Peter").ToMinimalApi());
 ```
+
+You register a custom handler using a `Type` that acts as a key in a dictionary. 
+This type can be concrete or generic, and if it is generic, open or closed. 
+
+> If it is a generic type, it will first try to resolve the open type.
+
+That being the case, you could write the following:
+
+```csharp
+app.ConfigureToMinimalApi(options =>
+{
+    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result => // open generic type
+    {
+        var teapotResult = (TeapotResult<int>)result; // It's your responsibility to cast the specific type
+        return Results.Content($"I'm a {teapotResult.Value} teapot year old",
+            statusCode: 418);
+    });    
+    
+    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
+    {
+        var teapotResult = (TeapotResult<string>)result;
+        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+            statusCode: 418);
+    });
+});
+```
+
+*This package has a dependency of [Peter.Result](#peterresult) package.*
 
 ### Peter.Testing
 
