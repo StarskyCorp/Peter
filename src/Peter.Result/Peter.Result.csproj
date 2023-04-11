@@ -1,2 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Description>Family of generic types to avoid using exceptions to control execution flow</Description>
+    </PropertyGroup>
 </Project>

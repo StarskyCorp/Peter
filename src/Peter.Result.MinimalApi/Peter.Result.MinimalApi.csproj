@@ -4,4 +4,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\Peter.Result\Peter.Result.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <Description>Specialized result types that can be mapped automatically to HTTP status codes</Description>
+  </PropertyGroup>
 </Project>
