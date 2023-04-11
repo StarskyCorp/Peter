@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Peter.MinimalApi.Validation;
 
 /// <summary>
-/// Automatic validation using an endpoint filter factory.
+///     Automatic validation using an endpoint filter factory.
 /// </summary>
 /// <remarks>Inspired by https://benfoster.io/blog/minimal-api-validation-endpoint-filters/</remarks>
 public static class ValidationFilter

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Api.Features.Validation;
+namespace Api.Validation;
 
 public class Product
 {

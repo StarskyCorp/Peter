@@ -1,11 +1,13 @@
 ﻿using Peter.MinimalApi.Validation;
 
-namespace Api.Features.Validation;
+namespace Api.Validation;
 
 public static class ValidationEndpoints
 {
     public static IEndpointRouteBuilder AddValidationEndpoints(this IEndpointRouteBuilder app)
     {
+        #region Validated<T>
+
         app.MapPost("/validate_using_validated_generic_type",
             (Validated<Product> product) =>
                 !product.IsValid ? Results.ValidationProblem(product.Errors) : Results.Ok(product.Value));
@@ -15,17 +17,19 @@ public static class ValidationEndpoints
                 ? Results.ValidationProblem(product.Errors)
                 : Results.Ok(product.Value));
 
-        // app.MapPost("/validate_using_validate_attribute", ([Validate] Product product) => Results.Ok(product))
-        //     .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
-        //
-        // app.MapPost("/fail_validation_using_validate_attribute_when_there_is_not_a_custom_validator_registered",
-        //         ([Validate] ProductWithoutCustomValidator product) => Results.Ok(product))
-        //     .AddEndpointFilterFactory(ValidationFilter.ValidationEndpointFilterFactory);
-        
-        app.MapPost("/validate_using_validate_attribute", (Product product) => Results.Ok(product));
+        #endregion
+
+        #region ValidationFilter.ValidationEndpointFilterFactory + [Validate]
+
+        app.MapPost("/validate_using_validate_attribute", ([Validate] Product product) => product);
+
+        // This endpoint shows that it's not required Validate attribute if you don't want
+        app.MapPost("/validate_omitting_validate_attribute", (Product product) => product);
 
         app.MapPost("/fail_validation_using_validate_attribute_when_there_is_not_a_custom_validator_registered",
-                (ProductWithoutCustomValidator product) => Results.Ok(product));        
+            (ProductWithoutCustomValidator product) => product);
+
+        #endregion
 
         return app;
     }

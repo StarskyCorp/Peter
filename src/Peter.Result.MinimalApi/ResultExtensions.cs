@@ -6,92 +6,105 @@ namespace Peter.Result;
 
 public static class ResultExtensions
 {
-    public static IResult ToMinimalApi<T>(this ResultBase<T> result, Action<ToMinimalApiOptions> configure)
+    public static IResult ToMinimalApi<T>(this Result<T> result, Action<ToMinimalApiOptions> configure)
     {
-        var options = new ToMinimalApiOptions();
+        var type = result.GetType();
+        Func<object, IResult>? customHandler;
+        if (type.IsGenericType)
+        {
+            customHandler = ToMinimalApiOptions.GetCustomHandler(type);
+            if (customHandler is not null)
+            {
+                return customHandler(result);
+            }
+
+            var genericType = type.GetGenericTypeDefinition();
+            customHandler = ToMinimalApiOptions.GetCustomHandler(genericType);
+            if (customHandler is not null)
+            {
+                return customHandler(result);
+            }
+        }
+        else
+        {
+            customHandler = ToMinimalApiOptions.GetCustomHandler(type);
+            if (customHandler is not null)
+            {
+                return customHandler(result);
+            }
+        }
+
+        var options = ToMinimalApiOptions.Create();
         configure(options);
 
-        return result.GetType() switch
+        return result switch
         {
-            var type when type == typeof(NotExistsResult<T>) => ManageNotExists(result, options),
-            var type when type == typeof(InvalidResult<T>) => ManageInvalid((InvalidResult<T>)result, options),
-            var type when type == typeof(Result<T>) => result.Success switch
-            {
-                true => ManageOk(result, options),
-                false => ManageFailure(result, options)
-            },
-            _ => throw new ArgumentOutOfRangeException(nameof(result))
+            OkResult<T> => ManageOk(result, options),
+            ErrorResult<T> errorResult => ManageError(errorResult, options),
+            NotFoundResult<T> => ManageNotFound(result, options),
+            InvalidResult<T> invalidResult => ManageInvalid(invalidResult, options),
+            _ => result.Ok ? ManageOk(result, options) : ManageError(result, options)
         };
     }
 
-    public static IResult ToMinimalApi<T>(this ResultBase<T> result) => result.ToMinimalApi(_ => { });
+    public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
-    private static IResult ManageNotExists<T>(ResultBase<T> result, ToMinimalApiOptions options)
-        => options.NoContentBehaviour is NoContentBehaviourType.NotFound
-            ? Results.NotFound(result.Value)
-            : Results.NoContent();
-
-    private static IResult ManageOk<T>(ResultBase<T> result, ToMinimalApiOptions options) =>
-        options.OkBehaviour switch
+    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options)
+    {
+        if (result is not OkResult<T> okResult)
         {
-            OkBehaviourType.Created or OkBehaviourType.CreatedAt => ManageCreated(result, options),
-            OkBehaviourType.Accepted or OkBehaviourType.AcceptedAt => ManageAccepted(result, options),
-            _ => Results.Ok(result.Value)
+            return Results.Ok(result.Value);
+        }
+
+        return options.Ok switch
+        {
+            OkType.Ok => Results.Ok(okResult.Value),
+            OkType.Created or OkType.CreatedAtRoute => ManageCreated(okResult, options),
+            OkType.Accepted or OkType.AcceptedAtRoute => ManageAccepted(okResult, options),
+            _ => throw new ArgumentOutOfRangeException(nameof(okResult), okResult.GetType(),
+                $"{nameof(ManageOk)} is not able to handle type {okResult.GetType()}")
         };
-
-    private static IResult ManageAccepted<T>(ResultBase<T> result, ToMinimalApiOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.Route))
-        {
-            throw new ArgumentNullException(nameof(options.Route));
-        }
-
-        if (options.OkBehaviour == OkBehaviourType.Accepted)
-        {
-            return Results.Accepted(options.Route, result.Value);
-        }
-
-        return Results.AcceptedAtRoute(options.Route, options.RouteValues, result.Value);
     }
 
-    private static IResult ManageCreated<T>(ResultBase<T> result, ToMinimalApiOptions options)
+    private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options) =>
+        options.Ok is OkType.Created
+            ? Results.Created(options.Uri!, result.Value)
+            : Results.CreatedAtRoute(options.RouteName, options.RouteValues, result.Value);
+
+    private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options) =>
+        options.Ok is OkType.Accepted
+            ? Results.Accepted(options.Uri, result.Value)
+            : Results.AcceptedAtRoute(options.RouteName, options.RouteValues, result.Value);
+
+    private static IResult ManageError<T>(Result<T> result, ToMinimalApiOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.Route))
+        if (result is not ErrorResult<T> errorResult)
         {
-            throw new ArgumentNullException(nameof(options.Route));
+            return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        if (options.OkBehaviour == OkBehaviourType.Created)
+        if (options.Error is ErrorType.Problem)
         {
-            return Results.Created(options.Route, result.Value);
-        }
-
-        return Results.CreatedAtRoute(options.Route, options.RouteValues, result.Value);
-    }
-
-    private static IResult ManageFailure<T>(ResultBase<T> result, ToMinimalApiOptions options)
-    {
-        if (options.UseProblemDetails && result.Errors != null)
-        {
-            return Results.Problem(detail: string.Join(",", result.Errors),
+            return Results.Problem(detail: string.Join(",", errorResult.Errors.Select(e => e.Message)),
                 title: "Error",
                 statusCode: StatusCodes.Status500InternalServerError);
         }
 
-        return Results.StatusCode(500);
+        return Results.StatusCode(StatusCodes.Status500InternalServerError);
     }
 
+    private static IResult ManageNotFound<T>(Result<T> result, ToMinimalApiOptions options) =>
+        options.NotFound is NotFoundType.NotFound
+            ? Results.NotFound((object?)result.Value)
+            : Results.NoContent();
+
     private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
-        options.UseProblemDetails
+        options.Invalid is InvalidType.ValidationProblem
             ? Results.ValidationProblem(result.ToProblemDetails())
             : Results.BadRequest(result.ValidationErrors);
 
-    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result)
-    {
-        var details = result.ValidationErrors?
-            .GroupBy(x => x.Field)
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result) =>
+        result.ValidationErrors
+            .GroupBy(x => x.Identifier)
             .ToDictionary(x => x.Key, x => x.Select(e => e.Message).ToArray());
-
-        return details ?? new Dictionary<string, string[]>();
-    }
 }

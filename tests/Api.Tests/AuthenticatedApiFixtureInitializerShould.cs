@@ -1,10 +1,9 @@
-﻿using Api;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using Peter.Testing;
 using Xunit;
 
-namespace Peter.Api.Tests;
+namespace Api.Tests;
 
 public class AuthenticatedApiFixtureInitializer : IAuthenticatedApiFixtureInitializer
 {
@@ -15,11 +14,14 @@ public class AuthenticatedApiFixtureInitializer : IAuthenticatedApiFixtureInitia
     public void Initialize(IServiceProvider services) => _initializer.Object.Initialize(services);
 }
 
-public class AuthenticatedApiFixtureInitializerShould : IClassFixture<AuthenticatedApiFixture<IApiMarker, AuthenticatedApiFixtureInitializer>>
+public class
+    AuthenticatedApiFixtureInitializerShould : IClassFixture<
+        AuthenticatedApiFixture<IApiMarker, AuthenticatedApiFixtureInitializer>>
 {
     private readonly AuthenticatedApiFixture<IApiMarker, AuthenticatedApiFixtureInitializer> _fixture;
 
-    public AuthenticatedApiFixtureInitializerShould(AuthenticatedApiFixture<IApiMarker, AuthenticatedApiFixtureInitializer> fixture) =>
+    public AuthenticatedApiFixtureInitializerShould(
+        AuthenticatedApiFixture<IApiMarker, AuthenticatedApiFixtureInitializer> fixture) =>
         _fixture = fixture;
 
     [Fact]

@@ -5,64 +5,125 @@ namespace Peter.Result.Tests;
 
 public class ResultShould
 {
-    private static readonly Fixture _fixture = new();
+    private static readonly Fixture Fixture = new();
 
     [Fact]
-    public void create_success_result()
+    public void create_ok_result()
     {
-        var result = Result<object>.CreateSuccess(_fixture.Create<object>());
-        result.Success.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-    }
+        var result = OkResult<object>.Create();
 
-    [Fact]
-    public void create_success_result_without_value()
-    {
-        var result = Result<object>.CreateSuccess(value: null);
-        result.Success.Should().BeTrue();
+        result.Ok.Should().BeTrue();
         result.Value.Should().BeNull();
     }
 
     [Fact]
-    public void create_failed_result()
+    public void create_ok_result_with_value()
     {
-        var result = Result<object>.CreateFailure(_fixture.Create<IEnumerable<string>>());
-        result.Success.Should().BeFalse();
+        var result = OkResult<object>.Create(Fixture.Create<object>());
+
+        result.Ok.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void create_error_result()
+    {
+        var result = ErrorResult<object>.Create();
+
+        result.Ok.Should().BeFalse();
+        result.Value.Should().BeNull();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void create_error_result_with_errors()
+    {
+        var result = ErrorResult<object>.Create(Fixture.Create<IEnumerable<Error>>());
+
+        result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
         result.Errors.Should().NotBeEmpty();
     }
 
     [Fact]
-    public void create_failed_result_with_value()
+    public void create_error_result_with_message()
     {
-        var result = Result<object>.CreateFailure(_fixture.Create<IEnumerable<string>>(), _fixture.Create<object>());
-        result.Success.Should().BeFalse();
-        result.Value.Should().NotBeNull();
+        var message = Fixture.Create<string>();
+
+        var result = ErrorResult<object>.Create(message);
+
+        result.Ok.Should().BeFalse();
+        result.Value.Should().BeNull();
+        result.Errors.Should().BeEquivalentTo(new[] { new Error(message) });
+    }
+
+    [Fact]
+    public void create_error_result_with_errors_and_value()
+    {
+        var value = Fixture.Create<object>();
+
+        var result = ErrorResult<object>.Create(Fixture.Create<IEnumerable<Error>>(), value);
+
+        result.Ok.Should().BeFalse();
+        result.Value.Should().Be(value);
         result.Errors.Should().NotBeEmpty();
     }
 
     [Fact]
-    public void create_not_existing_result()
+    public void convert_to_bool_from_ok_result()
     {
-        var result = NotExistsResult<object>.Create();
-        result.Success.Should().BeFalse();
+        var result = OkResult<object>.Create();
+
+        ((bool)result).Should().BeTrue();
+    }
+
+    [Fact]
+    public void convert_to_bool_from_error_result()
+    {
+        var result = ErrorResult<object>.Create();
+
+        ((bool)result).Should().BeFalse();
+    }
+
+    [Fact]
+    public void convert_to_ok_result_from_any_value()
+    {
+        var value = Fixture.Create<string>();
+
+        OkResult<string> result = value;
+
+        result.Ok.Should().BeTrue();
+        result.Value.Should().Be(value);
+    }
+
+    [Fact]
+    public void create_not_found_result()
+    {
+        var result = NotFoundResult<object>.Create();
+
+        result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
     }
 
     [Fact]
-    public void create_not_existing_result_with_value()
+    public void create_not_found_result_with_value()
     {
-        var result = NotExistsResult<object>.Create(_fixture.Create<object>());
-        result.Success.Should().BeFalse();
-        result.Value.Should().NotBeNull();
+        var value = Fixture.Create<object>();
+
+        var result = NotFoundResult<object>.Create(value);
+
+        result.Ok.Should().BeFalse();
+        result.Value.Should().Be(value);
     }
 
     [Fact]
     public void create_invalid_result()
     {
-        var validationErrors = new List<ValidationError> { new(field: "Name", message: "Mandatory") };
-        var result = InvalidResult<object>.Create(validationErrors);
-        result.Success.Should().BeFalse();
+        var errors = new List<ValidationError> { new(identifier: "Name", message: "Mandatory") };
+
+        var result = InvalidResult<object>.Create(errors);
+
+        result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
         result.ValidationErrors.Should().NotBeEmpty();
     }
@@ -70,33 +131,13 @@ public class ResultShould
     [Fact]
     public void create_invalid_result_with_value()
     {
-        var validationErrors = new List<ValidationError> { new(field: "Name", message: "Mandatory") };
-        var result = InvalidResult<object>.Create(validationErrors, _fixture.Create<object>());
-        result.Success.Should().BeFalse();
-        result.Value.Should().NotBeNull();
-        result.ValidationErrors.Should().NotBeEmpty();
-    }
+        var errors = new List<ValidationError> { new(identifier: "Name", message: "Mandatory") };
+        var value = Fixture.Create<object>();
 
-    [Fact]
-    public void convert_to_bool_from_successful_result()
-    {
-        var result = Result<object>.CreateSuccess(_fixture.Create<object>());
-        ((bool)result).Should().BeTrue();
-    }
+        var result = InvalidResult<object>.Create(errors, value);
 
-    [Fact]
-    public void convert_to_bool_from_failed_result()
-    {
-        var result = Result<object>.CreateFailure(_fixture.Create<IEnumerable<string>>());
-        ((bool)result).Should().BeFalse();
-    }
-
-    [Fact]
-    public void convert_to_successful_result_from_any_value()
-    {
-        var value = _fixture.Create<string>();
-        Result<string> result = value;
-        result.Success.Should().BeTrue();
+        result.Ok.Should().BeFalse();
         result.Value.Should().Be(value);
+        result.ValidationErrors.Should().NotBeEmpty();
     }
 }

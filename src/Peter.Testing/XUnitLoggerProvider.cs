@@ -11,5 +11,7 @@ public class XUnitLoggerProvider : ILoggerProvider
 
     public ILogger CreateLogger(string categoryName) => new XUnitLogger(_testOutputHelper, categoryName);
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+    }
 }

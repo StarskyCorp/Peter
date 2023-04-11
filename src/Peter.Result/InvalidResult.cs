@@ -1,24 +1,20 @@
 namespace Peter.Result;
 
-public sealed class InvalidResult<T> : ResultBase<T>
+public class InvalidResult<T> : Result<T>
 {
-    public IEnumerable<ValidationError>? ValidationErrors { get; }
+    public IEnumerable<ValidationError> ValidationErrors { get; }
 
-    private InvalidResult(T? value, IEnumerable<ValidationError> validationErrors) : base(value, false) =>
-        ValidationErrors = validationErrors;
-
-    public static InvalidResult<T> Create(IEnumerable<ValidationError> validationErrors, T? value = default) =>
-        new(value, validationErrors);
-}
-
-public class ValidationError
-{
-    public ValidationError(string field, string message)
+    protected InvalidResult(T? value, IEnumerable<ValidationError>? validationErrors) :
+        base(false, value)
     {
-        Field = field ?? throw new ArgumentNullException(nameof(field));
-        Message = message ?? throw new ArgumentNullException(nameof(message));
+        ValidationErrors = validationErrors ?? Enumerable.Empty<ValidationError>();
     }
 
-    public string Field { get; }
-    public string Message { get; }
+    public static InvalidResult<T> Create(IEnumerable<ValidationError>? validationErrors = default,
+        T? value = default) =>
+        new(value, validationErrors);
+
+    public static InvalidResult<T> Create(string identifier, string message,
+        T? value = default) =>
+        new(value, new ValidationError[] { new(identifier, message) });
 }
