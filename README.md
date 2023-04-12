@@ -235,7 +235,7 @@ public class ValidationResult : Result<Void>
 {
     public IEnumerable<string> Errors { get; }
 
-    public ValidationResult(bool ok, IEnumerable<string> errors = default) : base(ok)
+    public ValidationResult(bool ok, IEnumerable<string>? errors = default) : base(ok)
     {
         Errors = errors ?? Enumerable.Empty<string>();
     }
