@@ -41,62 +41,63 @@ public static class ResultEndpoints
 
         app.MapGet("/very_ok", () =>
         {
-            var result = VeryOkResult<string>.Create("Peter");
+            var result = new VeryOkResult<string>("Peter");
             return result.ToMinimalApi();
         });
 
         app.MapGet("/problem", () =>
         {
-            var result = ErrorResult<object>.Create(new[] { new Error("A failure") });
+            var result = new ErrorResult<object>(new[] { new Error("A failure") });
             return result.ToMinimalApi();
         });
 
         app.MapGet("/internal_server_error", () =>
         {
-            var result = ErrorResult<object>.Create("A failure");
+            var result = new ErrorResult<object>("A failure");
             return result.ToMinimalApi(options => { options.UseInternalServerError(); });
         });
 
         app.MapGet("/not_found", () =>
         {
-            var result = NotFoundResult<object>.Create("Peter");
+            var result = new NotFoundResult<object>("Peter");
             return result.ToMinimalApi();
         });
 
         app.MapGet("/no_content", () =>
         {
-            var result = NotFoundResult<object>.Create();
+            var result = new NotFoundResult<object>();
             return result.ToMinimalApi(options => options.UseNoContent());
         });
 
         app.MapGet("/validation_problem", () =>
         {
-            var result = InvalidResult<object>.Create("peter", "message");
+            var result = new InvalidResult<object>("peter", "message");
             return result.ToMinimalApi();
         });
 
-        app.MapGet("/bad_request", () =>
+        app.MapGet("/bad_request", (bool simple) =>
         {
-            var result = InvalidResult<object>.Create("peter", "message");
-            return result.ToMinimalApi(options => options.UseBadRequest());
+            var result = new InvalidResult<object>("peter", "message");
+            if (!simple)
+            {
+                return result.ToMinimalApi(options => options.UseBadRequest());
+            }
+
+            return result.ToMinimalApi(options => options.UseBadRequest(simple: true));
         });
 
-        app.MapGet("/open_teapot", (bool ok) =>
-        {
-            var result = TeapotResult<string>.Create(ok, "Peter");
-            return result.ToMinimalApi();
-        });
-        
+        app.MapGet("/open_teapot", (bool ok) => new TeapotResult<string>(ok, "Peter").ToMinimalApi());
+
         app.MapGet("/closed_teapot", (int age) =>
         {
-            var result = TeapotResult<int>.Create(true, age);
+            var result = new TeapotResult<int>(true, age);
             return result.ToMinimalApi();
         });
-        
-        app.MapGet("/using_result_type_base", (bool ok) =>
+
+        app.MapGet("/using_result_type_base", (bool ok, bool toString) =>
         {
-            var result = new Result<object>(ok);
-            return result.ToMinimalApi();
+            var result = new Result<object>(ok, "Peter");
+            return result.ToMinimalApi(options => { options.UseInternalServerError(toString); });
         });
 
         return app;

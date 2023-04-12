@@ -15,5 +15,7 @@ public class Result<T>
         Value = value;
     }
 
+    public bool HasValue => Value is not null && Value is not Void;
+
     public static implicit operator bool(Result<T> result) => result.Ok;
 }

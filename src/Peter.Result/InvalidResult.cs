@@ -4,17 +4,18 @@ public class InvalidResult<T> : Result<T>
 {
     public IEnumerable<ValidationError> ValidationErrors { get; }
 
-    protected InvalidResult(T? value, IEnumerable<ValidationError>? validationErrors) :
-        base(false, value)
+    public InvalidResult(T? value, IEnumerable<ValidationError>? validationErrors) : base(false, value)
     {
         ValidationErrors = validationErrors ?? Enumerable.Empty<ValidationError>();
     }
 
-    public static InvalidResult<T> Create(IEnumerable<ValidationError>? validationErrors = default,
-        T? value = default) =>
-        new(value, validationErrors);
+    public InvalidResult(IEnumerable<ValidationError>? validationErrors = default, T? value = default) : this(value,
+        validationErrors)
+    {
+    }
 
-    public static InvalidResult<T> Create(string identifier, string message,
-        T? value = default) =>
-        new(value, new ValidationError[] { new(identifier, message) });
+    public InvalidResult(string identifier, string message, T? value = default) : this(value,
+        new ValidationError[] { new(identifier, message) })
+    {
+    }
 }

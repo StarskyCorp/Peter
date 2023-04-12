@@ -10,7 +10,7 @@ public class ResultShould
     [Fact]
     public void create_ok_result()
     {
-        var result = OkResult<object>.Create();
+        var result = new OkResult<object>();
 
         result.Ok.Should().BeTrue();
         result.Value.Should().BeNull();
@@ -19,7 +19,7 @@ public class ResultShould
     [Fact]
     public void create_ok_result_with_value()
     {
-        var result = OkResult<object>.Create(Fixture.Create<object>());
+        var result = new OkResult<object>(Fixture.Create<object>());
 
         result.Ok.Should().BeTrue();
         result.Value.Should().NotBeNull();
@@ -28,7 +28,7 @@ public class ResultShould
     [Fact]
     public void create_error_result()
     {
-        var result = ErrorResult<object>.Create();
+        var result = new ErrorResult<object>();
 
         result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
@@ -38,7 +38,7 @@ public class ResultShould
     [Fact]
     public void create_error_result_with_errors()
     {
-        var result = ErrorResult<object>.Create(Fixture.Create<IEnumerable<Error>>());
+        var result = new ErrorResult<object>(Fixture.Create<IEnumerable<Error>>());
 
         result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
@@ -50,7 +50,7 @@ public class ResultShould
     {
         var message = Fixture.Create<string>();
 
-        var result = ErrorResult<object>.Create(message);
+        var result = new ErrorResult<object>(message);
 
         result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
@@ -62,7 +62,7 @@ public class ResultShould
     {
         var value = Fixture.Create<object>();
 
-        var result = ErrorResult<object>.Create(Fixture.Create<IEnumerable<Error>>(), value);
+        var result = new ErrorResult<object>(Fixture.Create<IEnumerable<Error>>(), value);
 
         result.Ok.Should().BeFalse();
         result.Value.Should().Be(value);
@@ -72,7 +72,7 @@ public class ResultShould
     [Fact]
     public void convert_to_bool_from_ok_result()
     {
-        var result = OkResult<object>.Create();
+        var result = new OkResult<object>();
 
         ((bool)result).Should().BeTrue();
     }
@@ -80,7 +80,7 @@ public class ResultShould
     [Fact]
     public void convert_to_bool_from_error_result()
     {
-        var result = ErrorResult<object>.Create();
+        var result = new ErrorResult<object>();
 
         ((bool)result).Should().BeFalse();
     }
@@ -99,7 +99,7 @@ public class ResultShould
     [Fact]
     public void create_not_found_result()
     {
-        var result = NotFoundResult<object>.Create();
+        var result = new NotFoundResult<object>();
 
         result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
@@ -110,7 +110,7 @@ public class ResultShould
     {
         var value = Fixture.Create<object>();
 
-        var result = NotFoundResult<object>.Create(value);
+        var result = new NotFoundResult<object>(value);
 
         result.Ok.Should().BeFalse();
         result.Value.Should().Be(value);
@@ -121,7 +121,7 @@ public class ResultShould
     {
         var errors = new List<ValidationError> { new(identifier: "Name", message: "Mandatory") };
 
-        var result = InvalidResult<object>.Create(errors);
+        var result = new InvalidResult<object>(errors);
 
         result.Ok.Should().BeFalse();
         result.Value.Should().BeNull();
@@ -134,7 +134,7 @@ public class ResultShould
         var errors = new List<ValidationError> { new(identifier: "Name", message: "Mandatory") };
         var value = Fixture.Create<object>();
 
-        var result = InvalidResult<object>.Create(errors, value);
+        var result = new InvalidResult<object>(errors, value);
 
         result.Ok.Should().BeFalse();
         result.Value.Should().Be(value);

@@ -90,6 +90,19 @@ public class CustomersModule : IModule
 
 The main purpose of `Result<T>` and all their descendants is to avoid the [exception-driven control flow anti-pattern](https://stackoverflow.com/questions/729379/why-not-use-exceptions-as-regular-flow-of-control).
 
+The library supplies the following types:
+
+- `Result<T>`
+- `OkResult<T>`
+- `InvalidResult<T>`
+- `NotFoundResult<T>`
+- `Void`
+    - Inspired by other Unit types like: 
+      - https://github.com/dotnet/reactive/blob/main/Rx.NET/Source/src/System.Reactive/Unit.cs
+      - https://github.com/jbogard/MediatR/blob/master/src/MediatR.Contracts/Unit.cs
+
+> `Void` can be used with generic types, instead of `object`, when you want to pass nothing 
+
 Here, you can see a code snippet that doesn't use exceptions to guide control flow and use pattern matching to explore return value type:
 
 ```csharp
@@ -136,20 +149,20 @@ public class OrderService
         if (!customerByIdResult)
         {
             // Instead of throw new NotFoundException() or whatever you want...
-            return NotFoundResult<CreateOrderResponse>.Create();
+            return new NotFoundResult<CreateOrderResponse>();
         }
 
         var customer = customerByIdResult.Value!;
         if (!customer.IsGold)
         {
-            return InvalidResult<CreateOrderResponse>.Create(nameof(customer.IsGold),
+            return new InvalidResult<CreateOrderResponse>(nameof(customer.IsGold),
                 "Customer must be gold for creating an order");
         }
 
         if (!HasCredit(customer))
         {
             // Instead of throw new CustomerHasNoCreditException() or whatever you want...
-            return CustomerHasNoCredit.Create(currentCredit: 1000, attemptedCredit: 2000);
+            return new CustomerHasNoCredit(currentCredit: 1000, attemptedCredit: 2000);
         }
 
         try
@@ -158,19 +171,19 @@ public class OrderService
         }
         catch (Exception)
         {
-            return ErrorResult<CreateOrderResponse>.Create("Something happened");
+            return new ErrorResult<CreateOrderResponse>("Something happened");
         }
 
         // Here goes the remaining code for creating an order, and finally...
 
-        return OkResult<CreateOrderResponse>.Create(new CreateOrderResponse(5, customer.Id, DateTime.UtcNow));
+        return new OkResult<CreateOrderResponse>(new CreateOrderResponse(5, customer.Id, DateTime.UtcNow));
     }
 
     private Result<Customer> GetCustomerById(int customerId)
     {
         // You should return one of the following...
-        // return OkResult<Customer>.Create(new Customer() { Id = customerId});
-        return NotFoundResult<Customer>.Create();
+        // return new OkResult<Customer>(new Customer() { Id = customerId});
+        return new NotFoundResult<Customer>();
     }
 
     private bool HasCredit(Customer customer)
@@ -209,11 +222,43 @@ public class CustomerHasNoCredit : Result<CreateOrderResponse>
         CurrentCredit = currentCredit;
         AttemptedCredit = attemptedCredit;
     }
+}
+```
 
-    public static CustomerHasNoCredit Create(int currentCredit, int attemptedCredit)
+`CustomerHasNoCredit` is a clear example of extending `Result<T>`. 
+
+Another example could be this where the `Void` type is also used to represent an empty value.:
+
+```csharp
+public class ValidationResult : Result<Void>
+{
+    public IEnumerable<string>? Errors { get; }
+
+    public ValidationResult(bool ok, IEnumerable<string>? errors = default) : base(ok)
     {
-        return new CustomerHasNoCredit(currentCredit, attemptedCredit);
+        Errors = errors ?? Enumerable.Empty<string>();
     }
+
+    public static implicit operator ValidationResult(bool ok) => new(ok);
+
+    public static implicit operator ValidationResult(string message) => new(false, new[] { message });
+}
+```
+
+And now you could use in the following way:
+
+```csharp
+public ValidationResult Validate()
+{
+    if (true) // Any condition really complex...
+    {
+        // return new ValidationResult(false,
+        //     new Error[] { new($"Name '{performanceReview.Name}' is not unique") });
+        return $"Name '{performanceReview.Name}' is not unique";
+    }
+
+    // return new ValidationResult(true);
+    return true;
 }
 ```
 
@@ -257,10 +302,10 @@ public async Task<Result<GetCustomerResponse>> Handle(
             cancellationToken: cancellationToken);
     if (customer is null)
     {
-        return NotFoundResult<GetCustomerResponse>.Create();
+        return new NotFoundResult<GetCustomerResponse>();
     }
 
-    return OkResult<GetCustomerResponse>.Create(customer);
+    return new OkResult<GetCustomerResponse>(customer);
 }
 ```
 
@@ -268,19 +313,21 @@ public async Task<Result<GetCustomerResponse>> Handle(
 
 The following table shows which HTTP status codes the result types are mapped to and what options we have to configure them.
 
-| Type                | HTTP status code | Behavior                               | Value                                                                                                                                                              |
-|---------------------|------------------|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `OkResult<T>`       | 200 (default)    | `UseOk`                                | Body                                                                                                                                                               |
-|                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`   | Body<br/>Location header                                                                                                                                           |
-|                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute` | Body<br/>Location header                                                                                                                                           |
-| `ErrorResult<T>`    | 500 (defaul)     | `UseProblem`                           | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                         |
-|                     | 500              | `UseInternalServerError`               | None                                                                                                                                                               |
-| `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                          | Body                                                                                                                                                               |
-|                     | 204              | `UseNoContent`                         | None                                                                                                                                                               |
-| `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                 | [HttpValidationProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpvalidationproblemdetails?view=aspnetcore-7.0) collection |
-|                     | 400              | `UseBadRequest`                        | [ValidationError](src/Peter.Result/ValidationError.cs) collection                                                                                                  |
-| `Result<T>`         | 200              |                                        | Body                                                                                                                                                               |
-|                     | 500              |                                        | None                                                                                                                                                               |
+| Type                | HTTP status code | Behavior                                 | Value                                                                                                                                                              |
+|---------------------|------------------|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `OkResult<T>`       | 200 (default)    | `UseOk`                                  | Body                                                                                                                                                               |
+|                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`     | Body<br/>Location header                                                                                                                                           |
+|                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute`   | Body<br/>Location header                                                                                                                                           |
+| `ErrorResult<T>`    | 500 (default)    | `UseProblem`                             | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                         |
+|                     | 500              | `UseInternalServerError`                 | Body                                                                                                                                                               |
+| `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                            | Body                                                                                                                                                               |
+|                     | 204              | `UseNoContent`                           | None                                                                                                                                                               |
+| `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                   | [HttpValidationProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpvalidationproblemdetails?view=aspnetcore-7.0) collection |
+|                     | 400              | `UseBadRequest`                          | [ValidationError](src/Peter.Result/ValidationError.cs) collection                                                                                                  |
+|                     | 400              | `UseBadRequest(simple: true)`            | String collection from `ValidationError.Message`                                                                                                                   |
+| `Result<T>`         | 200              |                                          | Body                                                                                                                                                               |
+|                     | 500 (default)    |                                          | None                                                                                                                                                               |
+|                     | 500              | `UseInternalServerError(toString: true)` | Body                                                                                                                                                               |
 
 #### Extending Peter.Result.MinimalApi
 
@@ -294,16 +341,10 @@ You can inherit from an existing `Result<T>` or any of their descendants:
 /// </summary>
 public class VeryOkResult<T> : OkResult<T>
 {
-    protected VeryOkResult(T? value): base(value)
+    public VeryOkResult(T? value = default) : base(value)
     {
-        
     }
-    
-    public new static VeryOkResult<T> Create(T? value = default)
-    {
-        return new VeryOkResult<T>(value);
-    }
-    
+
     public static implicit operator VeryOkResult<T>(T value) => new(value);
 }
 ```
@@ -313,7 +354,7 @@ And then use it in a request endpoint handler. Since it is a type that inherits 
 ```csharp
 app.MapGet("/very_ok", () =>
 {
-    var result = VeryOkResult<string>.Create("Peter");
+    var result = new VeryOkResult<string>("Peter");
     return result.ToMinimalApi();
 });
 ```
@@ -350,13 +391,8 @@ namespace Api;
 
 public class TeapotResult<T> : Result<T>
 {
-    protected TeapotResult(bool ok, T? value) : base(ok, value)
+    public TeapotResult(bool ok, T? value = default) : base(ok, value)
     {
-    }
-
-    public static TeapotResult<T> Create(bool ok, T? value = default)
-    {
-        return new TeapotResult<T>(ok, value);
     }
 }
 ```
@@ -379,7 +415,7 @@ And finally, you can use your new custom type seamlessly with Peter.
 
 ```csharp
 app.MapGet("/teapot", (bool ok) =>
-    TeapotResult<string>.Create(ok, "Peter").ToMinimalApi());
+    new TeapotResult<string>(ok, "Peter").ToMinimalApi());
 ```
 
 You register a custom handler using a `Type` that acts as a key in a dictionary. 

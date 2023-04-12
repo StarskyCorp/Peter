@@ -78,19 +78,22 @@ public static class ResultExtensions
 
     private static IResult ManageError<T>(Result<T> result, ToMinimalApiOptions options)
     {
-        if (result is not ErrorResult<T> errorResult)
+        if (result is ErrorResult<T> errorResult)
         {
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            var content = string.Join(",", errorResult.Errors.Select(e => e.Message));
+            if (options.Error is ErrorType.Problem)
+            {
+                return Results.Problem(detail: content,
+                    title: "Error",
+                    statusCode: StatusCodes.Status500InternalServerError);
+            }
+
+            return new InternalServerErrorResult(content);
         }
 
-        if (options.Error is ErrorType.Problem)
-        {
-            return Results.Problem(detail: string.Join(",", errorResult.Errors.Select(e => e.Message)),
-                title: "Error",
-                statusCode: StatusCodes.Status500InternalServerError);
-        }
-
-        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+        return !options.InternalServerErrorToString
+            ? Results.StatusCode(StatusCodes.Status500InternalServerError)
+            : new InternalServerErrorResult(result.ToString()!);
     }
 
     private static IResult ManageNotFound<T>(Result<T> result, ToMinimalApiOptions options) =>
@@ -98,10 +101,17 @@ public static class ResultExtensions
             ? Results.NotFound((object?)result.Value)
             : Results.NoContent();
 
-    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
-        options.Invalid is InvalidType.ValidationProblem
-            ? Results.ValidationProblem(result.ToProblemDetails())
-            : Results.BadRequest(result.ValidationErrors);
+    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options)
+    {
+        if (options.Invalid is InvalidType.ValidationProblem)
+        {
+            return Results.ValidationProblem(result.ToProblemDetails());
+        }
+
+        return !options.SimpleBadRequest
+            ? Results.BadRequest(result.ValidationErrors)
+            : Results.BadRequest(result.ValidationErrors.Select(ve => ve.Message));
+    }
 
     private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result) =>
         result.ValidationErrors

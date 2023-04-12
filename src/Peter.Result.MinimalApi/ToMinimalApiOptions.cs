@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 
 namespace Peter.Result.MinimalApi;
@@ -20,8 +19,12 @@ public class ToMinimalApiOptions : ICloneable
 
     public object? RouteValues { get; private set; }
 
-    private static readonly ToMinimalApiOptions DefaultOptions = new();
+    public bool SimpleBadRequest { get; private set; }
     
+    public bool InternalServerErrorToString { get; private set; }
+
+    private static readonly ToMinimalApiOptions DefaultOptions = new();
+
     private static readonly ConcurrentDictionary<Type, Func<object, IResult>> CustomHandlers = new();
 
     private ToMinimalApiOptions()
@@ -30,18 +33,20 @@ public class ToMinimalApiOptions : ICloneable
         Error = ErrorType.Problem;
         NotFound = NotFoundType.NotFound;
         Invalid = InvalidType.ValidationProblem;
+        SimpleBadRequest = false;
+        InternalServerErrorToString = false;
     }
 
     public static ToMinimalApiOptions GetDefaultOptions()
     {
         return DefaultOptions;
     }
-    
+
     public static ToMinimalApiOptions Create()
     {
         return (ToMinimalApiOptions)DefaultOptions.Clone();
     }
-    
+
     public static void UseCustomHandler(Type type, Func<object, IResult> handler)
     {
         CustomHandlers[type] = handler;
@@ -86,9 +91,10 @@ public class ToMinimalApiOptions : ICloneable
         Error = ErrorType.Problem;
     }
 
-    public void UseInternalServerError()
+    public void UseInternalServerError(bool toString = false)
     {
         Error = ErrorType.InternalServerError;
+        InternalServerErrorToString = toString;
     }
 
     public void UseNotFound()
@@ -106,9 +112,10 @@ public class ToMinimalApiOptions : ICloneable
         Invalid = InvalidType.ValidationProblem;
     }
 
-    public void UseBadRequest()
+    public void UseBadRequest(bool simple = false)
     {
         Invalid = InvalidType.BadRequest;
+        SimpleBadRequest = simple;
     }
 
     public object Clone() =>

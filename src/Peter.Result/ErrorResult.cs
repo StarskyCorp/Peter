@@ -4,18 +4,16 @@ public class ErrorResult<T> : Result<T>
 {
     public IEnumerable<Error> Errors { get; }
 
-    protected ErrorResult(T? value, IEnumerable<Error>? errors) : base(false, value)
+    public ErrorResult(T? value, IEnumerable<Error>? errors) : base(false, value)
     {
         Errors = errors ?? Enumerable.Empty<Error>();
     }
 
-    public static ErrorResult<T> Create(IEnumerable<Error>? errors = default, T? value = default)
+    public ErrorResult(IEnumerable<Error>? errors = default, T? value = default) : this(value, errors)
     {
-        return new ErrorResult<T>(value, errors);
     }
 
-    public static ErrorResult<T> Create(string message, T? value = default)
+    public ErrorResult(string message, T? value = default) : this(value, new[] { new Error(message) })
     {
-        return Create(new[] { new Error(message) }, value);
     }
 }

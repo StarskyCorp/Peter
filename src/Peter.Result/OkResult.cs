@@ -2,14 +2,9 @@ namespace Peter.Result;
 
 public class OkResult<T> : Result<T>
 {
-    protected OkResult(T? value) : base(true, value)
+    public OkResult(T? value = default) : base(true, value)
     {
     }
 
-    public static OkResult<T> Create(T? value = default)
-    {
-        return new OkResult<T>(value);
-    }
-
-    public static implicit operator OkResult<T>(T value) => Create(value);
+    public static implicit operator OkResult<T>(T value) => new(value);
 }

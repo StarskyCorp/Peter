@@ -106,6 +106,8 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
         var response = await _client.GetAsync("internal_server_error");
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("A failure");
     }
 
     [Fact]
@@ -140,13 +142,25 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
     [Fact]
     public async Task return_bad_request()
     {
-        var response = await _client.GetAsync("bad_request");
+        var response = await _client.GetAsync("bad_request?simple=false");
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var content =
             (await response.Content.ReadFromJsonAsync<IEnumerable<ValidationError>>())!;
         content.Single().Should()
             .BeEquivalentTo(new ValidationError("peter", "message"));
+    }
+
+    [Fact]
+    public async Task return_simple_bad_request()
+    {
+        var response = await _client.GetAsync("bad_request?simple=true");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var content =
+            (await response.Content.ReadFromJsonAsync<IEnumerable<string>>())!;
+        content.Single().Should()
+            .BeEquivalentTo("message");
     }
 
     [Fact]
@@ -168,7 +182,7 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("I'm not Peter's teapot");
     }
-    
+
     [Fact]
     public async Task return_closed_teapot()
     {
@@ -178,20 +192,32 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
         var content = await response.Content.ReadAsStringAsync();
         content.Should().Be("I'm a 47 teapot year old");
     }
-    
+
     [Fact]
     public async Task return_ok_using_result_type_base()
     {
-        var response = await _client.GetAsync("using_result_type_base?ok=true");
+        var response = await _client.GetAsync("using_result_type_base?ok=true&toString=false");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }    
-    
+        (await response.Content.ReadAsStringAsync()).Should().Be("\"Peter\"");
+    }
+
     [Fact]
     public async Task return_error_using_result_type_base()
     {
-        var response = await _client.GetAsync("using_result_type_base?ok=false");
+        var response = await _client.GetAsync("using_result_type_base?ok=false&toString=false");
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-    }        
+        (await response.Content.ReadAsStringAsync()).Should().BeEmpty();
+    }
+    
+    [Fact]
+    public async Task return_error_using_result_type_base_to_string()
+    {
+        var response = await _client.GetAsync("using_result_type_base?ok=false&toString=true");
+
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        var content = await response.Content.ReadAsStringAsync();
+        content.Should().Be("Peter.Result.Result`1[System.Object]");
+    }
 }
