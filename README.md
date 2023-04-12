@@ -100,6 +100,7 @@ The library supplies the following types:
     - Inspired by other Unit types like: 
       - https://github.com/dotnet/reactive/blob/main/Rx.NET/Source/src/System.Reactive/Unit.cs
       - https://github.com/jbogard/MediatR/blob/master/src/MediatR.Contracts/Unit.cs
+      - https://learn.microsoft.com/en-us/dotnet/api/system.void?view=net-7.0
 
 > `Void` can be used with generic types, instead of `object`, when you want to pass nothing 
 
@@ -232,9 +233,9 @@ Another example could be this where the `Void` type is also used to represent an
 ```csharp
 public class ValidationResult : Result<Void>
 {
-    public IEnumerable<string>? Errors { get; }
+    public IEnumerable<string> Errors { get; }
 
-    public ValidationResult(bool ok, IEnumerable<string>? errors = default) : base(ok)
+    public ValidationResult(bool ok, IEnumerable<string> errors = default) : base(ok)
     {
         Errors = errors ?? Enumerable.Empty<string>();
     }
