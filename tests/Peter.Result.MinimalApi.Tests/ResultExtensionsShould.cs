@@ -210,7 +210,7 @@ public class ResultExtensionsShould : IClassFixture<WebApplicationFactory<IApiMa
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         (await response.Content.ReadAsStringAsync()).Should().BeEmpty();
     }
-    
+
     [Fact]
     public async Task return_error_using_result_type_base_to_string()
     {

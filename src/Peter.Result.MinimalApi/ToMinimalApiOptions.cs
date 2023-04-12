@@ -20,7 +20,7 @@ public class ToMinimalApiOptions : ICloneable
     public object? RouteValues { get; private set; }
 
     public bool SimpleBadRequest { get; private set; }
-    
+
     public bool InternalServerErrorToString { get; private set; }
 
     private static readonly ToMinimalApiOptions DefaultOptions = new();

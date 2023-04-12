@@ -28,6 +28,7 @@ public class
     public async Task be_invoked_when_the_test_server_is_created()
     {
         var response = await _fixture.Client().GetStringAsync("/Peter");
+
         response.Should().Be("Hello Peter!");
         AuthenticatedApiFixtureInitializer._initializer.Verify(a => a.Initialize(It.IsAny<IServiceProvider>()));
     }
