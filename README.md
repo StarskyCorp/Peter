@@ -398,17 +398,14 @@ public class TeapotResult<T> : Result<T>
 }
 ```
 
-Now, we can configure how to manage `TeapotResult<string>`:
+Now, we can configure how to manage `TeapotResult<string>` in `program.cs`:
 
 ```csharp
-app.ConfigureToMinimalApi(options =>
+ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
 {
-    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
-    {
-        var teapotResult = (TeapotResult<string>)result;
-        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
-            statusCode: 418);
-    });
+    var teapotResult = (TeapotResult<string>)result;
+    return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+        statusCode: 418);
 });
 ```
 
@@ -424,25 +421,29 @@ This type can be concrete or generic, and if it is generic, open or closed.
 
 > If it is a generic type, it will first try to resolve the open type.
 
-That being the case, you could write the following:
+That being the case, you could write the following in your `program.cs`:
 
 ```csharp
-app.ConfigureToMinimalApi(options =>
+ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result => // open generic type
 {
-    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result => // open generic type
-    {
-        var teapotResult = (TeapotResult<int>)result; // It's your responsibility to cast the specific type
-        return Results.Content($"I'm a {teapotResult.Value} teapot year old",
-            statusCode: 418);
-    });    
-    
-    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
-    {
-        var teapotResult = (TeapotResult<string>)result;
-        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
-            statusCode: 418);
-    });
+    var teapotResult = (TeapotResult<int>)result; // It's your responsibility to cast the specific type
+    return Results.Content($"I'm a {teapotResult.Value} teapot year old",
+        statusCode: 418);
+});    
+
+ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
+{
+    var teapotResult = (TeapotResult<string>)result;
+    return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+        statusCode: 418);
 });
+```
+
+Additionally, if you return empty types from your commands/queries (for example, `Unit` with `MediatR`), you can inform to Peter that it shouldn't return this value in the body.
+
+```csharp
+// program.cs
+ToMinimalApiOptions.AddNullType(typeof(Unit));
 ```
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*

@@ -53,12 +53,12 @@ public static class ResultExtensions
     {
         if (result is not OkResult<T> okResult)
         {
-            return Results.Ok(result.Value);
+            return Results.Ok(GetValue(result));
         }
 
         return options.Ok switch
         {
-            OkType.Ok => Results.Ok(okResult.Value),
+            OkType.Ok => Results.Ok(GetValue(okResult)),
             OkType.Created or OkType.CreatedAtRoute => ManageCreated(okResult, options),
             OkType.Accepted or OkType.AcceptedAtRoute => ManageAccepted(okResult, options),
             _ => throw new ArgumentOutOfRangeException(nameof(okResult), okResult.GetType(),
@@ -68,13 +68,13 @@ public static class ResultExtensions
 
     private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.Ok is OkType.Created
-            ? Results.Created(options.Uri!, result.Value)
-            : Results.CreatedAtRoute(options.RouteName, options.RouteValues, result.Value);
+            ? Results.Created(options.Uri!, GetValue(result))
+            : Results.CreatedAtRoute(options.RouteName, options.RouteValues, GetValue(result));
 
     private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.Ok is OkType.Accepted
-            ? Results.Accepted(options.Uri, result.Value)
-            : Results.AcceptedAtRoute(options.RouteName, options.RouteValues, result.Value);
+            ? Results.Accepted(options.Uri, GetValue(result))
+            : Results.AcceptedAtRoute(options.RouteName, options.RouteValues, GetValue(result));
 
     private static IResult ManageError<T>(Result<T> result, ToMinimalApiOptions options)
     {
@@ -98,7 +98,7 @@ public static class ResultExtensions
 
     private static IResult ManageNotFound<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.NotFound is NotFoundType.NotFound
-            ? Results.NotFound((object?)result.Value)
+            ? Results.NotFound(GetValue(result))
             : Results.NoContent();
 
     private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options)
@@ -117,4 +117,15 @@ public static class ResultExtensions
         result.ValidationErrors
             .GroupBy(x => x.Identifier)
             .ToDictionary(x => x.Key, x => x.Select(e => e.Message).ToArray());
+
+    private static object? GetValue<T>(Result<T> result)
+    {
+        var type = result.Value?.GetType();
+        if (type is not null && ToMinimalApiOptions.GetNullTypes().Contains(type))
+        {
+            return null;
+        }
+
+        return result.Value;
+    }
 }

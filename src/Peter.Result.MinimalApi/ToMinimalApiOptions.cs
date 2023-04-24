@@ -23,6 +23,8 @@ public class ToMinimalApiOptions : ICloneable
 
     public bool InternalServerErrorToString { get; private set; }
 
+    private static readonly List<Type> NullTypes = new() { typeof(Void) };
+
     private static readonly ToMinimalApiOptions DefaultOptions = new();
 
     private static readonly ConcurrentDictionary<Type, Func<object, IResult>> CustomHandlers = new();
@@ -45,6 +47,16 @@ public class ToMinimalApiOptions : ICloneable
     public static ToMinimalApiOptions Create()
     {
         return (ToMinimalApiOptions)DefaultOptions.Clone();
+    }
+
+    public static void AddNullType(Type type)
+    {
+        NullTypes.Add(type);
+    }
+    
+    public static IEnumerable<Type> GetNullTypes()
+    {
+        return NullTypes;
     }
 
     public static void UseCustomHandler(Type type, Func<object, IResult> handler)

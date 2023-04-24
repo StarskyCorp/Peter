@@ -15,21 +15,20 @@ builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
 
 var app = builder.Build();
 
-app.ConfigureToMinimalApi(options =>
-{
-    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result =>
-    {
-        var teapotResult = (TeapotResult<int>)result;
-        return Results.Content($"I'm a {teapotResult.Value} teapot year old",
-            statusCode: 418);
-    });
+ToMinimalApiOptions.AddNullType(typeof(Peter.Result.Void));
 
-    ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
-    {
-        var teapotResult = (TeapotResult<string>)result;
-        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
-            statusCode: 418);
-    });
+ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result =>
+{
+    var teapotResult = (TeapotResult<int>)result;
+    return Results.Content($"I'm a {teapotResult.Value} teapot year old",
+        statusCode: 418);
+});
+
+ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
+{
+    var teapotResult = (TeapotResult<string>)result;
+    return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+        statusCode: 418);
 });
 
 if (app.Environment.IsDevelopment())
