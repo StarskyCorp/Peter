@@ -94,6 +94,7 @@ The library supplies the following types:
 
 - `Result<T>`
 - `OkResult<T>`
+- `ErrorResult<T>`
 - `InvalidResult<T>`
 - `NotFoundResult<T>`
 - `Void`
