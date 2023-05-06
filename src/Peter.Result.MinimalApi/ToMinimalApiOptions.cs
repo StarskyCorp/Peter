@@ -9,8 +9,6 @@ public class ToMinimalApiOptions : ICloneable
 
     public ErrorType Error { get; private set; }
 
-    public NotFoundType NotFound { get; private set; }
-
     public InvalidType Invalid { get; private set; }
 
     public string? Uri { get; private set; }
@@ -18,10 +16,6 @@ public class ToMinimalApiOptions : ICloneable
     public string? RouteName { get; private set; }
 
     public object? RouteValues { get; private set; }
-
-    public bool SimpleBadRequest { get; private set; }
-
-    public bool InternalServerErrorToString { get; private set; }
 
     private static readonly List<Type> NullTypes = new() { typeof(Void) };
 
@@ -33,10 +27,7 @@ public class ToMinimalApiOptions : ICloneable
     {
         Ok = OkType.Ok;
         Error = ErrorType.Problem;
-        NotFound = NotFoundType.NotFound;
-        Invalid = InvalidType.ValidationProblem;
-        SimpleBadRequest = false;
-        InternalServerErrorToString = false;
+        Invalid = InvalidType.Problem;
     }
 
     public static ToMinimalApiOptions GetDefaultOptions()
@@ -53,13 +44,13 @@ public class ToMinimalApiOptions : ICloneable
     {
         NullTypes.Add(type);
     }
-    
+
     public static IEnumerable<Type> GetNullTypes()
     {
         return NullTypes;
     }
 
-    public static void UseCustomHandler(Type type, Func<object, IResult> handler)
+    public static void RegisterCustomHandler(Type type, Func<object, IResult> handler)
     {
         CustomHandlers[type] = handler;
     }
@@ -67,67 +58,45 @@ public class ToMinimalApiOptions : ICloneable
     public static Func<object, IResult>? GetCustomHandler(Type type) =>
         CustomHandlers.TryGetValue(type, out var handler) ? handler : null;
 
-    public void UseOk()
+    public void WithOk()
     {
         Ok = OkType.Ok;
     }
 
-    public void UseCreated(string? uri)
+    public void WithCreated(string? uri)
     {
         Ok = OkType.Created;
         Uri = uri;
     }
 
-    public void UseCreatedAtRoute(string? routeName, object? routeValues = null)
+    public void WithCreatedAtRoute(string? routeName, object? routeValues = null)
     {
         Ok = OkType.CreatedAtRoute;
         RouteName = routeName;
         RouteValues = routeValues;
     }
 
-    public void UseAccepted(string? uri)
+    public void WithAccepted(string? uri)
     {
         Ok = OkType.Accepted;
         Uri = uri;
     }
 
-    public void UseAcceptedAtRoute(string? routeName, object? routeValues = null)
+    public void WithAcceptedAtRoute(string? routeName, object? routeValues = null)
     {
         Ok = OkType.AcceptedAtRoute;
         RouteName = routeName;
         RouteValues = routeValues;
     }
 
-    public void UseProblem()
+    public void WithError(ErrorType errorType)
     {
-        Error = ErrorType.Problem;
+        Error = errorType;
     }
 
-    public void UseInternalServerError(bool toString = false)
+    public void WithInvalid(InvalidType invalidType)
     {
-        Error = ErrorType.InternalServerError;
-        InternalServerErrorToString = toString;
-    }
-
-    public void UseNotFound()
-    {
-        NotFound = NotFoundType.NotFound;
-    }
-
-    public void UseNoContent()
-    {
-        NotFound = NotFoundType.NoContent;
-    }
-
-    public void UseValidationProblem()
-    {
-        Invalid = InvalidType.ValidationProblem;
-    }
-
-    public void UseBadRequest(bool simple = false)
-    {
-        Invalid = InvalidType.BadRequest;
-        SimpleBadRequest = simple;
+        Invalid = invalidType;
     }
 
     public object Clone() =>
@@ -135,7 +104,6 @@ public class ToMinimalApiOptions : ICloneable
         {
             Ok = Ok,
             Error = Error,
-            NotFound = NotFound,
             Invalid = Invalid
         };
 }

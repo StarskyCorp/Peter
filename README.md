@@ -96,6 +96,8 @@ The library supplies the following types:
 - `OkResult<T>`
 - `ErrorResult<T>`
 - `InvalidResult<T>`
+- `SimpleInvalidResult<T>`
+- `DetailedInvalidResult<T>`
 - `NotFoundResult<T>`
 - `Void`
     - Inspired by other Unit types like: 
@@ -131,7 +133,7 @@ public class CreateOrderHandler
             {
                 case NotFoundResult<CreateOrderResponse> notFoundResult:
                     break;
-                case InvalidResult<CreateOrderResponse> invalidResult:
+                case SimpleInvalidResult<CreateOrderResponse> simpleInvalidResult:
                     break;
                 case CustomerHasNoCredit customerHasNoCredit:
                     // customerHasNoCredit.CurrentCredit
@@ -157,8 +159,7 @@ public class OrderService
         var customer = customerByIdResult.Value!;
         if (!customer.IsGold)
         {
-            return new InvalidResult<CreateOrderResponse>(nameof(customer.IsGold),
-                "Customer must be gold for creating an order");
+            return new SimpleInvalidResult<CreateOrderResponse>("Customer must be gold for creating an order");
         }
 
         if (!HasCredit(customer))
@@ -315,21 +316,18 @@ public async Task<Result<GetCustomerResponse>> Handle(
 
 The following table shows which HTTP status codes the result types are mapped to and what options we have to configure them.
 
-| Type                | HTTP status code | Behavior                                 | Value                                                                                                                                                              |
-|---------------------|------------------|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `OkResult<T>`       | 200 (default)    | `UseOk`                                  | Body                                                                                                                                                               |
-|                     | 201              | `UseCreated`<br/>`UseCreatedAtRoute`     | Body<br/>Location header                                                                                                                                           |
-|                     | 202              | `UseAccepted`<br/>`UseAcceptedAtRoute`   | Body<br/>Location header                                                                                                                                           |
-| `ErrorResult<T>`    | 500 (default)    | `UseProblem`                             | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                         |
-|                     | 500              | `UseInternalServerError`                 | Body                                                                                                                                                               |
-| `NotFoundResult<T>` | 404 (default)    | `UseNotFound`                            | Body                                                                                                                                                               |
-|                     | 204              | `UseNoContent`                           | None                                                                                                                                                               |
-| `InvalidResult<T>`  | 400 (default)    | `UseValidationProblem`                   | [HttpValidationProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpvalidationproblemdetails?view=aspnetcore-7.0) collection |
-|                     | 400              | `UseBadRequest`                          | [ValidationError](src/Peter.Result/ValidationError.cs) collection                                                                                                  |
-|                     | 400              | `UseBadRequest(simple: true)`            | String collection from `ValidationError.Message`                                                                                                                   |
-| `Result<T>`         | 200              |                                          | Body                                                                                                                                                               |
-|                     | 500 (default)    |                                          | None                                                                                                                                                               |
-|                     | 500              | `UseInternalServerError(toString: true)` | Body                                                                                                                                                               |
+| Type                | HTTP status code | Behavior                                   | Value | Comments                                                                                                                                                                                                                                                                                                                                        |
+|---------------------|------------------|--------------------------------------------|-------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `OkResult<T>`       | 200 (default)    | `WithOk`                                   | Body  |                                                                                                                                                                                                                                                                                                                                                 |
+|                     | 201              | `WithCreated`<br/>`WithCreatedAtRoute`     | Body  | Location header                                                                                                                                                                                                                                                                                                                                 |
+|                     | 202              | `WithAccepted`<br/>`WithAcceptedAtRoute`   | Body  | Location header                                                                                                                                                                                                                                                                                                                                 |
+| `Result<T>`         | 200              |                                            | Body  |                                                                                                                                                                                                                                                                                                                                                 |
+| `ErrorResult<T>`    | 500 (default)    | `WithError(ErrorType.Problem)`             |       | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0)                                                                                                                                                                                                                      |
+|                     | 500              | `WithError(ErrorType.InternalServerError)` |       |                                                                                                                                                                                                                                                                                                                                                 |
+| `Result<T>`         | 500 (default)    |                                            |       |                                                                                                                                                                                                                                                                                                                                                 |
+| `NotFoundResult<T>` | 404 (default)    |                                            |       |                                                                                                                                                                                                                                                                                                                                                 |
+| `InvalidResult<T>`  | 400 (default)    | `WithInvalid(InvalidType.Problem)`         |       | [ProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.problemdetails?view=aspnetcore-7.0) if `SimpleInvalidResult<T>` or [HttpValidationProblemDetails](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.http.httpvalidationproblemdetails?view=aspnetcore-7.0) if `DetailedInvalidResult<T>` |
+|                     | 400              | `WithInvalid(InvalidType.BadRequest)`      |       |                                                                                                                                                                                                                                                                                                                                                 |
 
 #### Extending Peter.Result.MinimalApi
 
@@ -369,12 +367,12 @@ If you want to customize the behavior of `ToMinimalApi` globally, you'll need to
 
 Although [HTTP status codes](#http-status-codes) shows the default values, you can change them globally as follows:
 
-For example, with this code `InvalidResult<T>` will use `Results.BadRequest` instead of `Results.ValidationProblem`.
+For example, with this code `InvalidResult<T>` and their descendants will use `Results.BadRequest` instead of `Results.Problem` or `Results.ValidationProblem`.
 
 ```csharp
 app.ConfigureToMinimalApi(options =>
 {
-    options.UseBadRequest();
+    options.WithBadRequest();
 });
 ```
 
@@ -402,7 +400,7 @@ public class TeapotResult<T> : Result<T>
 Now, we can configure how to manage `TeapotResult<string>` in `program.cs`:
 
 ```csharp
-ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
+ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<string>), result =>
 {
     var teapotResult = (TeapotResult<string>)result;
     return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
@@ -425,14 +423,14 @@ This type can be concrete or generic, and if it is generic, open or closed.
 That being the case, you could write the following in your `program.cs`:
 
 ```csharp
-ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result => // open generic type
+ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<>), result => // open generic type
 {
     var teapotResult = (TeapotResult<int>)result; // It's your responsibility to cast the specific type
     return Results.Content($"I'm a {teapotResult.Value} teapot year old",
         statusCode: 418);
 });    
 
-ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
+ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
 {
     var teapotResult = (TeapotResult<string>)result;
     return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",

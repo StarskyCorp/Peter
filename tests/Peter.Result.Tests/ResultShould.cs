@@ -8,7 +8,7 @@ public class ResultShould
     private static readonly Fixture Fixture = new();
 
     [Fact]
-    public void create_ok_result()
+    public void create_an_ok_result_without_a_value()
     {
         var result = new OkResult<object>();
 
@@ -17,60 +17,18 @@ public class ResultShould
     }
 
     [Fact]
-    public void create_ok_result_with_value()
-    {
-        var result = new OkResult<object>(Fixture.Create<object>());
-
-        result.Ok.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void create_error_result()
-    {
-        var result = new ErrorResult<object>();
-
-        result.Ok.Should().BeFalse();
-        result.Value.Should().BeNull();
-        result.Errors.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void create_error_result_with_errors()
-    {
-        var result = new ErrorResult<object>(Fixture.Create<IEnumerable<Error>>());
-
-        result.Ok.Should().BeFalse();
-        result.Value.Should().BeNull();
-        result.Errors.Should().NotBeEmpty();
-    }
-
-    [Fact]
-    public void create_error_result_with_message()
-    {
-        var message = Fixture.Create<string>();
-
-        var result = new ErrorResult<object>(message);
-
-        result.Ok.Should().BeFalse();
-        result.Value.Should().BeNull();
-        result.Errors.Should().BeEquivalentTo(new[] { new Error(message) });
-    }
-
-    [Fact]
-    public void create_error_result_with_errors_and_value()
+    public void create_an_ok_result_with_a_value()
     {
         var value = Fixture.Create<object>();
 
-        var result = new ErrorResult<object>(Fixture.Create<IEnumerable<Error>>(), value);
+        var result = new OkResult<object>(value);
 
-        result.Ok.Should().BeFalse();
+        result.Ok.Should().BeTrue();
         result.Value.Should().Be(value);
-        result.Errors.Should().NotBeEmpty();
     }
 
     [Fact]
-    public void convert_to_bool_from_ok_result()
+    public void convert_to_true_an_ok_result()
     {
         var result = new OkResult<object>();
 
@@ -78,15 +36,7 @@ public class ResultShould
     }
 
     [Fact]
-    public void convert_to_bool_from_error_result()
-    {
-        var result = new ErrorResult<object>();
-
-        ((bool)result).Should().BeFalse();
-    }
-
-    [Fact]
-    public void convert_to_ok_result_from_any_value()
+    public void convert_to_an_ok_result_any_value()
     {
         var value = Fixture.Create<string>();
 
@@ -97,47 +47,76 @@ public class ResultShould
     }
 
     [Fact]
-    public void create_not_found_result()
+    public void create_an_error_result_without_a_message()
     {
-        var result = new NotFoundResult<object>();
+        var result = new ErrorResult<object>();
 
         result.Ok.Should().BeFalse();
-        result.Value.Should().BeNull();
+        result.Error.Should().BeNull();
     }
 
     [Fact]
-    public void create_not_found_result_with_value()
+    public void create_an_error_result_with_a_message()
     {
-        var value = Fixture.Create<object>();
+        var message = Fixture.Create<string>();
 
-        var result = new NotFoundResult<object>(value);
+        var result = new ErrorResult<object>(message);
 
         result.Ok.Should().BeFalse();
-        result.Value.Should().Be(value);
+        result.Error.Should().Be(message);
     }
 
     [Fact]
-    public void create_invalid_result()
+    public void convert_to_false_an_error_result()
     {
-        var errors = new List<ValidationError> { new(identifier: "Name", message: "Mandatory") };
+        var result = new ErrorResult<object>();
 
-        var result = new InvalidResult<object>(errors);
-
-        result.Ok.Should().BeFalse();
-        result.Value.Should().BeNull();
-        result.ValidationErrors.Should().NotBeEmpty();
+        ((bool)result).Should().BeFalse();
     }
 
     [Fact]
-    public void create_invalid_result_with_value()
+    public void create_a_not_found_result()
     {
-        var errors = new List<ValidationError> { new(identifier: "Name", message: "Mandatory") };
-        var value = Fixture.Create<object>();
+        new NotFoundResult<object>().Ok.Should().BeFalse();
+    }
 
-        var result = new InvalidResult<object>(errors, value);
+    [Fact]
+    public void create_an_invalid_result()
+    {
+        new InvalidResult<object>().Ok.Should().BeFalse();
+    }
+
+    [Fact]
+    public void create_a_simple_invalid_result()
+    {
+        var message = Fixture.Create<string>();
+
+        var result = new SimpleInvalidResult<object>(message);
 
         result.Ok.Should().BeFalse();
-        result.Value.Should().Be(value);
-        result.ValidationErrors.Should().NotBeEmpty();
+        result.Message.Should().Be(message);
+    }
+
+    [Fact]
+    public void create_a_detailed_invalid_result()
+    {
+        var details = Fixture.Create<IEnumerable<DetailedMessage>>();
+
+        var result = new DetailedInvalidResult<object>(details);
+
+        result.Ok.Should().BeFalse();
+        result.Details.Should().BeEquivalentTo(details);
+    }
+
+    [Fact]
+    public void create_a_detailed_invalid_result_with_only_one_detail()
+    {
+        var key = Fixture.Create<string>();
+        var message = Fixture.Create<string>();
+
+        var result = new DetailedInvalidResult<object>(key, message);
+
+        result.Ok.Should().BeFalse();
+        result.Details.Should().BeEquivalentTo(new[] { new DetailedMessage(key, new[] { message }) });
     }
 }

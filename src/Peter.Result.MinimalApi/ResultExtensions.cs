@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Peter.Result.MinimalApi;
 
 // ReSharper disable once CheckNamespace
@@ -41,7 +42,7 @@ public static class ResultExtensions
         {
             OkResult<T> => ManageOk(result, options),
             ErrorResult<T> errorResult => ManageError(errorResult, options),
-            NotFoundResult<T> => ManageNotFound(result, options),
+            NotFoundResult<T> => ManageNotFound(),
             InvalidResult<T> invalidResult => ManageInvalid(invalidResult, options),
             _ => result.Ok ? ManageOk(result, options) : ManageError(result, options)
         };
@@ -49,22 +50,14 @@ public static class ResultExtensions
 
     public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
-    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options)
-    {
-        if (result is not OkResult<T> okResult)
+    private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options) =>
+        options.Ok switch
         {
-            return Results.Ok(GetValue(result));
-        }
-
-        return options.Ok switch
-        {
-            OkType.Ok => Results.Ok(GetValue(okResult)),
-            OkType.Created or OkType.CreatedAtRoute => ManageCreated(okResult, options),
-            OkType.Accepted or OkType.AcceptedAtRoute => ManageAccepted(okResult, options),
-            _ => throw new ArgumentOutOfRangeException(nameof(okResult), okResult.GetType(),
-                $"{nameof(ManageOk)} is not able to handle type {okResult.GetType()}")
+            OkType.Ok => Results.Ok(GetValue(result)),
+            OkType.Created or OkType.CreatedAtRoute => ManageCreated(result, options),
+            OkType.Accepted or OkType.AcceptedAtRoute => ManageAccepted(result, options),
+            _ => throw new ArgumentOutOfRangeException()
         };
-    }
 
     private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.Ok is OkType.Created
@@ -78,45 +71,47 @@ public static class ResultExtensions
 
     private static IResult ManageError<T>(Result<T> result, ToMinimalApiOptions options)
     {
-        if (result is ErrorResult<T> errorResult)
+        if (result is not ErrorResult<T> errorResult)
         {
-            var content = string.Join(",", errorResult.Errors.Select(e => e.Message));
-            if (options.Error is ErrorType.Problem)
+            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if (options.Error is ErrorType.Problem)
+        {
+            return Results.Problem(new ProblemDetails
             {
-                return Results.Problem(detail: content,
-                    title: "Error",
-                    statusCode: StatusCodes.Status500InternalServerError);
-            }
-
-            return new InternalServerErrorResult(content);
+                Title = "An error occurred while processing your request.",
+                Detail = errorResult.Error
+            });
         }
 
-        return !options.InternalServerErrorToString
-            ? Results.StatusCode(StatusCodes.Status500InternalServerError)
-            : new InternalServerErrorResult(result.ToString()!);
+        return new InternalServerErrorResult(errorResult.Error);
     }
 
-    private static IResult ManageNotFound<T>(Result<T> result, ToMinimalApiOptions options) =>
-        options.NotFound is NotFoundType.NotFound
-            ? Results.NotFound(GetValue(result))
-            : Results.NoContent();
+    private static IResult ManageNotFound() => Results.NotFound();
 
-    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options)
-    {
-        if (options.Invalid is InvalidType.ValidationProblem)
+    private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
+        result switch
         {
-            return Results.ValidationProblem(result.ToProblemDetails());
-        }
+            SimpleInvalidResult<T> simpleInvalidResult when options.Invalid is InvalidType.BadRequest =>
+                Results.BadRequest(simpleInvalidResult.Message),
+            SimpleInvalidResult<T> simpleInvalidResult => Results.Problem(new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "An error occurred while processing your request.",
+                Detail = simpleInvalidResult.Message,
+            }),
+            DetailedInvalidResult<T> detailedInvalidResult when options.Invalid is InvalidType.BadRequest =>
+                Results.BadRequest(detailedInvalidResult.Details),
+            DetailedInvalidResult<T> detailedInvalidResult => Results.ValidationProblem(detailedInvalidResult
+                .ToProblemDetails()),
+            _ => Results.BadRequest()
+        };
 
-        return !options.SimpleBadRequest
-            ? Results.BadRequest(result.ValidationErrors)
-            : Results.BadRequest(result.ValidationErrors.Select(ve => ve.Message));
-    }
-
-    private static IDictionary<string, string[]> ToProblemDetails<T>(this InvalidResult<T> result) =>
-        result.ValidationErrors
-            .GroupBy(x => x.Identifier)
-            .ToDictionary(x => x.Key, x => x.Select(e => e.Message).ToArray());
+    private static IDictionary<string, string[]> ToProblemDetails<T>(this DetailedInvalidResult<T> result) =>
+        result.Details
+            .GroupBy(x => x.Key)
+            .ToDictionary(x => x.Key, x => x.SelectMany(e => e.Messages).ToArray());
 
     private static object? GetValue<T>(Result<T> result)
     {

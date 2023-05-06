@@ -40,7 +40,7 @@ public class Validated<T>
             throw new ArgumentException($"{parameter.Name} cannot be null.");
         }
 
-        IValidator<T>? validator = context.RequestServices.GetRequiredService<IValidator<T>>();
+        var validator = context.RequestServices.GetRequiredService<IValidator<T>>();
         var validationResult = await validator.ValidateAsync(value);
         return new Validated<T>(value, validationResult);
     }

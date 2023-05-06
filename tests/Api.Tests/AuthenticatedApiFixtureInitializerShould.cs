@@ -7,11 +7,11 @@ namespace Api.Tests;
 
 public class AuthenticatedApiFixtureInitializer : IAuthenticatedApiFixtureInitializer
 {
-    public static readonly Mock<IAuthenticatedApiFixtureInitializer> _initializer;
+    public static readonly Mock<IAuthenticatedApiFixtureInitializer> Initializer;
 
-    static AuthenticatedApiFixtureInitializer() => _initializer = new Mock<IAuthenticatedApiFixtureInitializer>();
+    static AuthenticatedApiFixtureInitializer() => Initializer = new Mock<IAuthenticatedApiFixtureInitializer>();
 
-    public void Initialize(IServiceProvider services) => _initializer.Object.Initialize(services);
+    public void Initialize(IServiceProvider services) => Initializer.Object.Initialize(services);
 }
 
 public class
@@ -30,6 +30,6 @@ public class
         var response = await _fixture.Client().GetStringAsync("/Peter");
 
         response.Should().Be("Hello Peter!");
-        AuthenticatedApiFixtureInitializer._initializer.Verify(a => a.Initialize(It.IsAny<IServiceProvider>()));
+        AuthenticatedApiFixtureInitializer.Initializer.Verify(a => a.Initialize(It.IsAny<IServiceProvider>()));
     }
 }

@@ -17,14 +17,16 @@ var app = builder.Build();
 
 ToMinimalApiOptions.AddNullType(typeof(Peter.Result.Void));
 
-ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<>), result =>
+// open
+ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<>), result =>
 {
     var teapotResult = (TeapotResult<int>)result;
-    return Results.Content($"I'm a {teapotResult.Value} teapot year old",
+    return Results.Content($"I'm a {teapotResult.Value} teapot years old",
         statusCode: 418);
 });
 
-ToMinimalApiOptions.UseCustomHandler(typeof(TeapotResult<string>), result =>
+// closed
+ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<string>), result =>
 {
     var teapotResult = (TeapotResult<string>)result;
     return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",

@@ -2,18 +2,14 @@ namespace Peter.Result;
 
 public class ErrorResult<T> : Result<T>
 {
-    public IEnumerable<Error> Errors { get; }
+    public string? Error { get; }
 
-    public ErrorResult(T? value, IEnumerable<Error>? errors) : base(false, value)
+    public ErrorResult(string? error) : base(false, default)
     {
-        Errors = errors ?? Enumerable.Empty<Error>();
+        Error = error;
     }
 
-    public ErrorResult(IEnumerable<Error>? errors = default, T? value = default) : this(value, errors)
-    {
-    }
-
-    public ErrorResult(string message, T? value = default) : this(value, new[] { new Error(message) })
+    public ErrorResult() : this(default)
     {
     }
 }

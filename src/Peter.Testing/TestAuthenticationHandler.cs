@@ -29,7 +29,7 @@ public class TestAuthenticationHandler : AuthenticationHandler<AuthenticationSch
         }
 
         var serializedClaims = authorizationHeaderValue[$"{Scheme.Name} ".Length..].Trim();
-        IEnumerable<Claim> claims = ClaimsSerializer.Deserialize(serializedClaims);
+        var claims = ClaimsSerializer.Deserialize(serializedClaims);
 
         Logger.LogInformation("{Scheme} Authenticated", Scheme.Name);
 
