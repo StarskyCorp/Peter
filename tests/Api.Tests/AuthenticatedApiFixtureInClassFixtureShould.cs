@@ -21,7 +21,7 @@ public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<Authent
     [Fact]
     public async Task greet()
     {
-        var response = await _fixture.Client().GetStringAsync("/Peter");
+        var response = await _fixture.CreateDefaultClient().GetStringAsync("/Peter");
 
         response.Should().Be("Hello Peter!");
     }
@@ -29,7 +29,7 @@ public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<Authent
     [Fact]
     public async Task greet_non_authenticated()
     {
-        var response = await _fixture.Client().GetAsync("/Peter/authenticated");
+        var response = await _fixture.CreateDefaultClient().GetAsync("/Peter/authenticated");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -39,7 +39,7 @@ public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<Authent
     {
         var claims = new Claim[] { new(ClaimTypes.Name, "Peter") };
 
-        var response = await _fixture.AuthenticatedClient(claims).GetStringAsync("/Peter/authenticated");
+        var response = await _fixture.CreateAuthenticatedClient(claims).GetStringAsync("/Peter/authenticated");
 
         response.Should().StartWith("Hello Peter!");
         response.Should().EndWith(string.Join<Claim>(",", claims));
@@ -48,7 +48,7 @@ public class AuthenticatedApiFixtureInClassFixtureShould : IClassFixture<Authent
     [Fact]
     public async Task show_api_logs()
     {
-        var response = await _fixture.Client().GetStringAsync("/users/log");
+        var response = await _fixture.CreateDefaultClient().GetStringAsync("/users/log");
 
         response.Should().Be("Users");
     }
