@@ -132,6 +132,16 @@ public static class ResultEndpoints
         });
 
         #endregion
+        
+        #region NotAllowed
+
+        app.MapGet("/not_allowed", () =>
+        {
+            var result = new NotAllowedResult<object>();
+            return result.ToMinimalApi();
+        });
+
+        #endregion        
 
         #region Teapot
 

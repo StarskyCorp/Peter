@@ -44,9 +44,11 @@ public static class ResultExtensions
             ErrorResult<T> errorResult => ManageError(errorResult, options),
             NotFoundResult<T> => ManageNotFound(),
             InvalidResult<T> invalidResult => ManageInvalid(invalidResult, options),
+            NotAllowedResult<T> => ManageNotAllowed(),
             _ => result.Ok ? ManageOk(result, options) : ManageError(result, options)
         };
     }
+
 
     public static IResult ToMinimalApi<T>(this Result<T> result) => result.ToMinimalApi(_ => { });
 
@@ -88,6 +90,7 @@ public static class ResultExtensions
         return new InternalServerErrorResult(errorResult.Error);
     }
 
+
     private static IResult ManageNotFound() => Results.NotFound();
 
     private static IResult ManageInvalid<T>(InvalidResult<T> result, ToMinimalApiOptions options) =>
@@ -107,6 +110,8 @@ public static class ResultExtensions
                 .ToProblemDetails()),
             _ => Results.BadRequest()
         };
+
+    private static IResult ManageNotAllowed() => Results.Forbid();
 
     private static IDictionary<string, string[]> ToProblemDetails<T>(this DetailedInvalidResult<T> result) =>
         result.Details
