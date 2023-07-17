@@ -9,18 +9,22 @@ public static class ResultExtensions
 {
     public static IResult ToMinimalApi<T>(this Result<T> result, Action<ToMinimalApiOptions> configure)
     {
+        var options = ToMinimalApiOptions.Create();
+        configure(options);
+
         var type = result.GetType();
         Func<object, IResult>? customHandler;
+
         if (type.IsGenericType)
         {
-            customHandler = ToMinimalApiOptions.GetCustomHandler(type);
+            customHandler = options.Configuration.GetCustomHandler(type);
             if (customHandler is not null)
             {
                 return customHandler(result);
             }
 
             var genericType = type.GetGenericTypeDefinition();
-            customHandler = ToMinimalApiOptions.GetCustomHandler(genericType);
+            customHandler = options.Configuration.GetCustomHandler(genericType);
             if (customHandler is not null)
             {
                 return customHandler(result);
@@ -28,15 +32,12 @@ public static class ResultExtensions
         }
         else
         {
-            customHandler = ToMinimalApiOptions.GetCustomHandler(type);
+            customHandler = options.Configuration.GetCustomHandler(type);
             if (customHandler is not null)
             {
                 return customHandler(result);
             }
         }
-
-        var options = ToMinimalApiOptions.Create();
-        configure(options);
 
         return result switch
         {
@@ -55,7 +56,7 @@ public static class ResultExtensions
     private static IResult ManageOk<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.Ok switch
         {
-            OkType.Ok => Results.Ok(GetValue(result)),
+            OkType.Ok => Results.Ok(GetValue(result, options)),
             OkType.Created or OkType.CreatedAtRoute => ManageCreated(result, options),
             OkType.Accepted or OkType.AcceptedAtRoute => ManageAccepted(result, options),
             _ => throw new ArgumentOutOfRangeException()
@@ -63,13 +64,13 @@ public static class ResultExtensions
 
     private static IResult ManageCreated<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.Ok is OkType.Created
-            ? Results.Created(options.Uri!, GetValue(result))
-            : Results.CreatedAtRoute(options.RouteName, options.RouteValues, GetValue(result));
+            ? Results.Created(options.Uri!, GetValue(result, options))
+            : Results.CreatedAtRoute(options.RouteName, options.RouteValues, GetValue(result, options));
 
     private static IResult ManageAccepted<T>(Result<T> result, ToMinimalApiOptions options) =>
         options.Ok is OkType.Accepted
-            ? Results.Accepted(options.Uri, GetValue(result))
-            : Results.AcceptedAtRoute(options.RouteName, options.RouteValues, GetValue(result));
+            ? Results.Accepted(options.Uri, GetValue(result, options))
+            : Results.AcceptedAtRoute(options.RouteName, options.RouteValues, GetValue(result, options));
 
     private static IResult ManageError<T>(Result<T> result, ToMinimalApiOptions options)
     {
@@ -118,10 +119,10 @@ public static class ResultExtensions
             .GroupBy(x => x.Key)
             .ToDictionary(x => x.Key, x => x.SelectMany(e => e.Messages).ToArray());
 
-    private static object? GetValue<T>(Result<T> result)
+    private static object? GetValue<T>(Result<T> result, ToMinimalApiOptions toMinimalApiOptions)
     {
         var type = result.Value?.GetType();
-        if (type is not null && ToMinimalApiOptions.GetNullTypes().Contains(type))
+        if (toMinimalApiOptions.Configuration.ExistsNullType(type))
         {
             return null;
         }

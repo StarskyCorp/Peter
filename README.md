@@ -424,18 +424,21 @@ This type can be concrete or generic, and if it is generic, open or closed.
 That being the case, you could write the following in your `program.cs`:
 
 ```csharp
-ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<>), result => // open generic type
+app.ConfigureToMinimalApi(options =>
 {
-    var teapotResult = (TeapotResult<int>)result; // It's your responsibility to cast the specific type
-    return Results.Content($"I'm a {teapotResult.Value} teapot year old",
-        statusCode: 418);
-});    
-
-ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
-{
-    var teapotResult = (TeapotResult<string>)result;
-    return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
-        statusCode: 418);
+    options.Configuration.RegisterCustomHandler(typeof(TeapotResult<>), result => // open generic type
+    {
+        var teapotResult = (TeapotResult<int>)result; // It's your responsibility to cast the specific type
+        return Results.Content($"I'm a {teapotResult.Value} teapot year old",
+            statusCode: 418);
+    });    
+    
+    options.Configuration.RegisterCustomHandler(typeof(TeapotResult<string>), result => // closed generic type
+    {
+        var teapotResult = (TeapotResult<string>)result;
+        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+            statusCode: 418);
+    });
 });
 ```
 
@@ -443,7 +446,10 @@ Additionally, if you return empty types from your commands/queries (for example,
 
 ```csharp
 // program.cs
-ToMinimalApiOptions.AddNullType(typeof(Unit));
+app.ConfigureToMinimalApi(options =>
+{
+    options.Configuration.AddNullType(typeof(Unit));
+});
 ```
 
 *This package has a dependency of [Peter.Result](#peterresult) package.*

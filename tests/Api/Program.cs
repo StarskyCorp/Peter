@@ -4,7 +4,7 @@ using Api.Validation;
 using FluentValidation;
 using Peter.MinimalApi.Modules;
 using Peter.MinimalApi.Validation;
-using Peter.Result.MinimalApi;
+using Void = Peter.Result.Void;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -15,23 +15,27 @@ builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
 
 var app = builder.Build();
 
-ToMinimalApiOptions.AddNullType(typeof(Peter.Result.Void));
-
-// open
-ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<>), result =>
+app.ConfigureToMinimalApi(options =>
 {
-    var teapotResult = (TeapotResult<int>)result;
-    return Results.Content($"I'm a {teapotResult.Value} teapot years old",
-        statusCode: 418);
+    options.Configuration.AddNullType(typeof(Void));
+
+    // open
+    options.Configuration.RegisterCustomHandler(typeof(TeapotResult<>), result =>
+    {
+        var teapotResult = (TeapotResult<int>)result;
+        return Results.Content($"I'm a {teapotResult.Value} teapot years old",
+            statusCode: 418);
+    });
+
+    // closed
+    options.Configuration.RegisterCustomHandler(typeof(TeapotResult<string>), result =>
+    {
+        var teapotResult = (TeapotResult<string>)result;
+        return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
+            statusCode: 418);
+    });
 });
 
-// closed
-ToMinimalApiOptions.RegisterCustomHandler(typeof(TeapotResult<string>), result =>
-{
-    var teapotResult = (TeapotResult<string>)result;
-    return Results.Content($"I'm {(!teapotResult.Ok ? "not " : "")}{teapotResult.Value}'s teapot",
-        statusCode: 418);
-});
 
 if (app.Environment.IsDevelopment())
 {

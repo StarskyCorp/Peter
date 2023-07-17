@@ -10,7 +10,8 @@ namespace Peter.Testing;
 
 public class AuthenticatedApiFixture<T> : WebApplicationFactory<T> where T : class
 {
-    public HttpClient CreateAuthenticatedClient(IEnumerable<Claim> claims) => CreateDefaultClient().WithIdentity(claims);
+    public HttpClient CreateAuthenticatedClient(IEnumerable<Claim> claims) =>
+        CreateDefaultClient().WithIdentity(claims);
 
     protected override void ConfigureWebHost(IWebHostBuilder builder) =>
         builder.ConfigureTestServices(services => { services.AddTestAuthentication(); });

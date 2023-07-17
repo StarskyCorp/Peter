@@ -132,7 +132,7 @@ public static class ResultEndpoints
         });
 
         #endregion
-        
+
         #region NotAllowed
 
         app.MapGet("/not_allowed", () =>
@@ -141,7 +141,7 @@ public static class ResultEndpoints
             return result.ToMinimalApi();
         });
 
-        #endregion        
+        #endregion
 
         #region Teapot
 

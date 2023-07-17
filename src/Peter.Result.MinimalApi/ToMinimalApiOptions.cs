@@ -1,7 +1,4 @@
-﻿using System.Collections.Concurrent;
-using Microsoft.AspNetCore.Http;
-
-namespace Peter.Result.MinimalApi;
+﻿namespace Peter.Result.MinimalApi;
 
 public class ToMinimalApiOptions : ICloneable
 {
@@ -17,46 +14,36 @@ public class ToMinimalApiOptions : ICloneable
 
     public object? RouteValues { get; private set; }
 
-    private static readonly List<Type> NullTypes = new() { typeof(Void) };
+    public ToMinimalApiConfiguration Configuration { get; private set; }
 
     private static readonly ToMinimalApiOptions DefaultOptions = new();
-
-    private static readonly ConcurrentDictionary<Type, Func<object, IResult>> CustomHandlers = new();
 
     private ToMinimalApiOptions()
     {
         Ok = OkType.Ok;
         Error = ErrorType.Problem;
         Invalid = InvalidType.Problem;
+        Configuration = new ToMinimalApiConfiguration();
     }
 
+    /// <summary>
+    ///     Return default options for <see cref="ToMinimalApiOptions" />.
+    /// </summary>
+    /// <returns></returns>
     public static ToMinimalApiOptions GetDefaultOptions()
     {
         return DefaultOptions;
     }
 
+    /// <summary>
+    ///     Create a new instance of <see cref="ToMinimalApiOptions" /> to be used in any endpoint handler, using as initial
+    ///     values the default options.
+    /// </summary>
+    /// <returns></returns>
     public static ToMinimalApiOptions Create()
     {
         return (ToMinimalApiOptions)DefaultOptions.Clone();
     }
-
-    public static void AddNullType(Type type)
-    {
-        NullTypes.Add(type);
-    }
-
-    public static IEnumerable<Type> GetNullTypes()
-    {
-        return NullTypes;
-    }
-
-    public static void RegisterCustomHandler(Type type, Func<object, IResult> handler)
-    {
-        CustomHandlers[type] = handler;
-    }
-
-    public static Func<object, IResult>? GetCustomHandler(Type type) =>
-        CustomHandlers.TryGetValue(type, out var handler) ? handler : null;
 
     public void WithOk()
     {
@@ -104,6 +91,7 @@ public class ToMinimalApiOptions : ICloneable
         {
             Ok = Ok,
             Error = Error,
-            Invalid = Invalid
+            Invalid = Invalid,
+            Configuration = (ToMinimalApiConfiguration)Configuration.Clone()
         };
 }
